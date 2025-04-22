@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home } from "@screens/Home";
+import { Graphs } from '@screens/Graphs';
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
 import {RegisterCashClosing} from "@screens/CashClosing/register";
@@ -8,9 +8,9 @@ const { Navigator, Screen } = createBottomTabNavigator();
 export function Routes() {
   return (
     <Navigator>
-      <Screen name="Home" component={Home} />
-      <Screen name="Registrar Fechamento" component={RegisterCashClosing} />
-      <Screen name="Lista de Fechamentos" component={ListCashClosing} />
+      <Screen name="Home" component={RegisterCashClosing} />
+      <Screen name="Listar com Gráficos" component={Graphs} />
+      <Screen name="Lista Mensal" component={ListCashClosing} />
     </Navigator>
   );
 }
