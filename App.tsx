@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { RealmProvider } from '@realm/react';
 import { db } from '@db/index';
 export default function App() {
+  console.log("para de ser idiota")
   return (  
   <RealmProvider schema={db.schema}>
     <NavigationContainer>

@@ -10,6 +10,9 @@ import React from "react";
 import zod from "zod";
 import dayjs from "dayjs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useObject } from "@realm/react";
+import { CashClosing } from "src/libs/realm/schemas/CashClosing";
+import { BSON } from "realm";
 
 // Schema de validação
 const cashClosingBody = zod.object({
@@ -25,11 +28,9 @@ type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 export function RegisterCashClosing() {
   const [DATA, setDATA] = useState<CashClosingDTO[]>([]);
   const [array, setArray] = useState([]);
-  const [arrayDatas, setArrayDatas] = useState([]);
   const [sum, setSum] = useState(0);
   const cashClosings = [];
-  const arraizinho = [];
-  const sameDayArray = [];
+  const now = dayjs().format("DD/MM/YYYY");
   const {
     control,
     handleSubmit,
@@ -58,52 +59,45 @@ export function RegisterCashClosing() {
     }
 
     loadData();
-    reset(); // limpa o formulário após cadastro
+    reset();
   }
 
   function loadData() {
-    const results = db.objects<CashClosingDTO>("CashClosingSchema");
+    const results = db
+      .objects<CashClosingDTO>("CashClosingSchema")
+      .filtered("date == $0", now);
+
+    setDATA(Array.from(results));
     const totais = results.map((item) => ({
       date: item.date,
       total: item.total,
       type: item.type,
     }));
 
-    const datas = results.map((item) => ({
-      date: item.date,
-      total: item.total,
-    }));
-
     totais.forEach(createArray);
-    function createArray(age) {
-      const array = new Array(age);
+    function createArray(total) {
+      const array = new Array(total);
       cashClosings.push(array);
       setArray(cashClosings);
     }
 
     let soma = 0;
-    console.log(cashClosings.forEach(cashClosingSum));
-    setDATA(Array.from(results));
+    cashClosings.forEach(cashClosingSum);
     function cashClosingSum(total) {
       const somas = total.map((item) => item.total);
-      const cars = ["BMW", "Volvo", "Saab", "Ford"];
       let i = 0;
-      let text = "";
 
       for (; somas[i]; ) {
         soma += somas[i];
         setSum(soma);
         i++;
       }
-      arraizinho.push(total.map((item) => item.total));
-      setArrayDatas(arraizinho);
     }
   }
 
   useEffect(() => {
     loadData();
   }, []);
-
   return (
     <>
       <Text>Total</Text>
