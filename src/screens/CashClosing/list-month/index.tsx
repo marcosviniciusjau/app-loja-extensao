@@ -1,5 +1,3 @@
-import { Text } from "react-native";
-import { StyleSheet, View, SectionList } from "react-native";
 import { db } from "@db/index";
 import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 import { useEffect, useState } from "react";
@@ -7,6 +5,8 @@ import React from "react";
 
 import { Heading } from "native-base";
 import dayjs from "dayjs";
+import { Container, Main } from "./styles";
+import { ButtonIcon } from "@components/ButtonIcon";
 interface Types {
   revenues: "Crédito" | "Débito" | "Pix" | "Dinheiro";
 }
@@ -63,9 +63,27 @@ export function ListMonthCashClosing() {
   }, []);
 
   return (
-    <>
-      <Heading>Receitas{sumRevenues}</Heading>
-      <Heading>Gastos{sumExpenses}</Heading>
-    </>
+    <Main>
+      <Container>
+        <ButtonIcon icon="money" />
+        <Heading>Receitas</Heading>
+        <Heading>
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(sumRevenues)}
+        </Heading>
+      </Container>
+      <Container>
+        <ButtonIcon icon="credit-card" />
+        <Heading>Gastos</Heading>
+        <Heading>
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(sumExpenses)}
+        </Heading>
+      </Container>
+    </Main>
   );
 }

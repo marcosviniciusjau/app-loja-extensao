@@ -6,7 +6,7 @@ const theme = extendTheme({
 
     BRAND_LIGHT: '#510996',
     BRAND_MID: '#510996',
-
+    RED: '#E83F5B',
     GRAY_100: '#E1E1E6',
     GRAY_200: '#C4C4CC',
     GRAY_300: '#8D8D99',

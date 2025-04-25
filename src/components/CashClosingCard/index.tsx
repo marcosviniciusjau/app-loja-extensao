@@ -1,18 +1,26 @@
 import { TouchableOpacityProps } from "react-native";
 import { Container, CashClosingText } from "./styles";
-import { Text } from "native-base";
-import React from "react";
+import { Button } from "native-base";
+import React, { useEffect, useState } from "react";
 import { CashClosing } from "@dtos/CashClosing";
+import { ButtonIcon } from "@components/ButtonIcon";
 type Props = TouchableOpacityProps & {
-  isSameDay: boolean;
+  onDelete: () => void;
   item: CashClosing;
 };
-export function CashClosingCard({ item, isSameDay, ...rest }: Props) {
+export function CashClosingCard({ item, onDelete, ...rest }: Props) {
   return (
-    <Container {...rest} isSameDay={isSameDay}>
+    <Container {...rest}>
       <CashClosingText>{item.date}</CashClosingText>
-      <CashClosingText>{item.total}</CashClosingText>
+      <CashClosingText>
+        {" "}
+        {new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(item.total)}
+      </CashClosingText>
       <CashClosingText>{item.type}</CashClosingText>
+      <ButtonIcon icon="trash" onPress={onDelete}/>
     </Container>
   );
 }

@@ -1,8 +1,6 @@
-import { Button, TextInput, Text } from "react-native";
-import { addCashClosing } from "@dao/CashClosingDAO";
-import { nanoid } from "nanoid";
+import { Alert, Text } from "react-native";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, View, SectionList } from "react-native";
+import { StyleSheet, SectionList } from "react-native";
 import { db } from "@db/index";
 import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 import { useEffect, useState } from "react";
@@ -10,9 +8,9 @@ import React from "react";
 import zod from "zod";
 import dayjs from "dayjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useObject } from "@realm/react";
-import { CashClosing } from "src/libs/realm/schemas/CashClosing";
-import { BSON } from "realm";
+import { Container, Input, Register } from "./styles";
+import { Heading } from "native-base";
+import { CashClosingCard } from "@components/CashClosingCard";
 
 // Schema de validação
 const cashClosingBody = zod.object({
@@ -61,7 +59,33 @@ export function RegisterCashClosing() {
     loadData();
     reset();
   }
+  async function handleRemoveCashClosing(id: string) {
+    try {
+      Alert.alert("Confirmação", "Deseja realmente excluir?", [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            db.write(() =>
+              db.delete(db.objects("CashClosingSchema").filtered("id = $0", id))
+            );
 
+            loadData();
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert(
+        "Remover fechamento",
+        "Não foi possível remover esse fechamento."
+      );
+    }
+  }
   function loadData() {
     const results = db
       .objects<CashClosingDTO>("CashClosingSchema")
@@ -99,19 +123,18 @@ export function RegisterCashClosing() {
     loadData();
   }, []);
   return (
-    <>
+    <Container>
       <Text>Total</Text>
       <Controller
         control={control}
         name="total"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
+          <Input
             placeholder="0.0"
             onBlur={onBlur}
             keyboardType="decimal-pad"
             onChangeText={onChange}
             value={value?.toString() ?? ""}
-            style={styles.input}
           />
         )}
       />
@@ -121,7 +144,7 @@ export function RegisterCashClosing() {
         control={control}
         name="type"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
+          <Input
             placeholder="Se foi pix, cartão ou despesa"
             onBlur={onBlur}
             onChangeText={onChange}
@@ -131,7 +154,7 @@ export function RegisterCashClosing() {
         )}
       />
       {errors.type && <Text style={styles.error}>{errors.type.message}</Text>}
-      <Button
+      <Register
         onPress={handleSubmit(registerCashClosing)}
         title="Registrar"
         disabled={isSubmitting}
@@ -141,23 +164,24 @@ export function RegisterCashClosing() {
         keyExtractor={(item, index) => item.id + index}
         ListEmptyComponent={<Text>Não tem nada ainda</Text>}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text>{item.total}</Text>
-            <Text>{item.type}</Text>
-          </View>
+          <CashClosingCard
+            item={item}
+            onDelete={()=>handleRemoveCashClosing(item.id)}
+          />
         )}
       />{" "}
-      <Text>Total do dia {sum}</Text>
-    </>
+      <Heading>
+        Total do dia:{" "}
+        {new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(sum)}
+      </Heading>
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    padding: 10,
-    marginVertical: 8,
-  },
   error: {
     color: "red",
   },

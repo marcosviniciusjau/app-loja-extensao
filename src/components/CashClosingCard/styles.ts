@@ -1,23 +1,18 @@
 import { TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { Text } from "native-base";
-export const Container = styled(TouchableOpacity)`
+type ContainerProps = {
+  isSameDay: boolean
+}
+export const Container = styled(TouchableOpacity) <ContainerProps>`
 display: flex;
+gap: 15px;
+flex-direction: row;
 width: '100%';
-padding: 24px;
+padding: 22px;
+margin: 24px;
 border-radius: 14px;
-background-color: #510996;
-variants: {
-  isSameDay: {
-      true: {
-        display: 'flex';
-        flexDirection: 'column';
-        gap: '0.75rem';
-        width: '100%';
-        height: 'auto';
-      };
-    };
-  };
+background-color:#0056b3;
 `
 
 export const CashClosingText = styled(Text)`
