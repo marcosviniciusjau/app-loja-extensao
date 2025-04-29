@@ -1,20 +1,28 @@
+import { Button, Heading } from "native-base";
 import styled from "styled-components/native";
 
 export const Container = styled.View`
-padding: 24px;
+padding: 8px;
 display: 'grid';
 `;
 
 export const Input = styled.TextInput`
+border: 1px solid #510996;
 border-width: 1;
 padding: 10px;
 margin: 10px;
+color: white;
 `;
 
-export const Register = styled.Button`
-width: '50%';
-padding-top: 12px;
-padding: 24px;
-border-radius: 14px;
-background-color: '#510996';
+export const Title = styled(Heading)`
+color: white;
+margin-top: 20;
+`;
+
+export const Register = styled(Button)`
+margin: 14px;
+height: 55px;
+border-radius: 18px;
+color: #fff;
+background-color: #510996;
 `;

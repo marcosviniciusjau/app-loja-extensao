@@ -1,89 +1,85 @@
-import { db } from "@db/index";
-import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
-import { useEffect, useState } from "react";
-import React from "react";
+import { useEffect, useState } from "react"
+import React from "react"
 
-import { Heading } from "native-base";
-import dayjs from "dayjs";
-import { Container, Main } from "./styles";
-import { ButtonIcon } from "@components/ButtonIcon";
-interface Types {
-  revenues: "Crédito" | "Débito" | "Pix" | "Dinheiro";
-}
+import { Container, Main, Sums, Title } from "./styles"
+import { ButtonIcon } from "@components/ButtonIcon"
+import { fetchCashClosing } from "@dao/CashClosingDAO"
 
 export function ListMonthCashClosing() {
-  const [sumRevenues, setSumRevenues] = useState([]);
-  const [sumExpenses, setSumExpenses] = useState([]);
-  const [array, setArray] = useState([]);
-  const cashClosings = [];
-  const now = dayjs().format("DD/MM/YYYY");
+  const [sumRevenues, setSumRevenues] = useState<number>()
+  const [sumExpenses, setSumExpenses] = useState<number>()
+  const [sumPurchases, setSumPurchases] = useState<number>()
   function loadData() {
-    const results = db.objects<CashClosingDTO>("CashClosingSchema");
+    const results = fetchCashClosing()
 
-    const totais = results.map((item) => ({
-      date: item.date,
-      total: item.total,
-      type: item.type,
-    }));
-    totais.forEach(createArray);
-    function createArray(total) {
-      const array = new Array(total);
-      cashClosings.push(array);
-      setArray(cashClosings);
-    }
+    const revenuesTypes = ["Crédito", "Débito", "Pix", "Dinheiro"]
+    const revenueResults = results.filter((item) =>
+      revenuesTypes.includes(item.type)
+    )
 
-    cashClosings.forEach(cashClosingSum);
-    function cashClosingSum() {
-      const revenuesTypes = ["Crédito", "Débito", "Pix", "Dinheiro"];
-      const revenueResults = results.filter((item) =>
-        revenuesTypes.includes(item.type)
-      );
-      const expensesResults = results.filter(
-        (item) => !revenuesTypes.includes(item.type)
-      );
+    const purchasesResults = results.filter((item) =>
+      item.type.includes("Compra")
+    )
+    const purchasesTypes = purchasesResults.map((item) => item.type)
 
-      const revenues = revenueResults.map((item) => item.total);
-      const expenses = expensesResults.map((item) => item.total);
+    const expensesResults = results.filter(
+      (item) =>
+        !revenuesTypes.includes(item.type) &&
+        !purchasesTypes.includes(item.type)
+    )
 
-      let sumRevenues = 0;
-      for (let i = 0; i < revenues.length; i++) {
-        sumRevenues += revenues[i];
-      }
-      setSumRevenues(sumRevenues);
-
-      let sumExpenses = 0;
-      for (let i = 0; i < expenses.length; i++) {
-        sumExpenses += expenses[i];
-      }
-      setSumExpenses(sumExpenses);
-    }
+    const purchasesSum = purchasesResults.reduce(
+      (acc, item) => acc + item.total,
+      0
+    )
+    setSumPurchases(purchasesSum)
+    const revenuesSum = revenueResults.reduce(
+      (acc, item) => acc + item.total,
+      0
+    )
+    setSumRevenues(revenuesSum)
+    const expensesSum = expensesResults.reduce(
+      (acc, item) => acc + item.total,
+      0
+    )
+    setSumExpenses(expensesSum)
   }
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData()
+  }, [])
 
   return (
     <Main>
       <Container>
-        <ButtonIcon icon="money" />
-        <Heading>Receitas</Heading>
-        <Heading>
+        <ButtonIcon icon="money" color={"#510996"} />
+        <Title>Receitas</Title>
+        <Sums>
           {new Intl.NumberFormat("pt-BR", {
             style: "currency",
             currency: "BRL",
-          }).format(sumRevenues)}
-        </Heading>
+          }).format(sumRevenues!)}
+        </Sums>
       </Container>
       <Container>
-        <ButtonIcon icon="credit-card" />
-        <Heading>Gastos</Heading>
-        <Heading>
+        <ButtonIcon icon="credit-card" color={"#510996"} />
+        <Title>Gastos</Title>
+        <Sums>
           {new Intl.NumberFormat("pt-BR", {
             style: "currency",
             currency: "BRL",
-          }).format(sumExpenses)}
-        </Heading>
+          }).format(sumExpenses!)}
+        </Sums>
+      </Container>
+      <Container>
+        <ButtonIcon icon="shopping-bag" color={"#510996"} />
+        <Title>Compras</Title>
+        <Sums>
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(sumPurchases!)}
+        </Sums>
       </Container>
     </Main>
-  );
+  )
 }

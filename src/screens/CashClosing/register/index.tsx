@@ -1,34 +1,31 @@
-import { Alert, Text } from "react-native";
-import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, SectionList } from "react-native";
-import { db } from "@db/index";
-import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
-import { useEffect, useState } from "react";
-import React from "react";
-import zod from "zod";
-import dayjs from "dayjs";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Container, Input, Register } from "./styles";
-import { Heading } from "native-base";
-import { CashClosingCard } from "@components/CashClosingCard";
+import { Alert, Text } from "react-native"
+import { Controller, useForm } from "react-hook-form"
+import { StyleSheet, SectionList } from "react-native"
+import { db } from "@db/index"
+import { CashClosing as CashClosingDTO } from "@dtos/CashClosing"
+import { useEffect, useState } from "react"
+import React from "react"
+import zod from "zod"
+import dayjs from "dayjs"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Container, Input, Register, Title } from "./styles"
+import { CashClosingCard } from "@components/CashClosingCard"
+import { CashClosingText } from "@components/CashClosingCard/styles"
+import { addCashClosing, deleteCashClosing } from "@dao/CashClosingDAO"
+import { ScrollView } from "native-base"
 
-// Schema de validação
 const cashClosingBody = zod.object({
-  id: zod.string().uuid().optional(),
   total: zod.coerce.number().positive("Informe um valor positivo"),
-
-  date: zod.string().optional(),
   type: zod.string().min(1, "Informe um tipo"),
-});
+})
 
-type CashClosingFormData = zod.infer<typeof cashClosingBody>;
+export type CashClosingFormData = zod.infer<typeof cashClosingBody>
 
 export function RegisterCashClosing() {
-  const [DATA, setDATA] = useState<CashClosingDTO[]>([]);
-  const [array, setArray] = useState([]);
-  const [sum, setSum] = useState(0);
-  const cashClosings = [];
-  const now = dayjs().format("DD/MM/YYYY");
+  const [DATA, setDATA] = useState<CashClosingDTO[]>([])
+
+  const [sum, setSum] = useState(0)
+  const now = dayjs().format("DD/MM/YYYY")
   const {
     control,
     handleSubmit,
@@ -36,29 +33,20 @@ export function RegisterCashClosing() {
     reset,
   } = useForm<CashClosingFormData>({
     resolver: zodResolver(cashClosingBody),
-  });
+  })
 
   async function registerCashClosing(data: CashClosingFormData) {
     try {
-      const date = new Date().toISOString();
-      data.id = date;
-      data.date = dayjs().format("DD/MM/YYYY");
-
-      const bd = db.write(() => {
-        db.create("CashClosingSchema", {
-          id: data.id,
-          type: data.type,
-          total: data.total,
-          date: data.date,
-        });
-      });
+      //@ts-ignore
+      addCashClosing(data)
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
 
-    loadData();
-    reset();
+    reset()
+    loadData()
   }
+
   async function handleRemoveCashClosing(id: string) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [
@@ -69,116 +57,92 @@ export function RegisterCashClosing() {
         {
           text: "OK",
           onPress: async () => {
-            db.write(() =>
-              db.delete(db.objects("CashClosingSchema").filtered("id = $0", id))
-            );
-
-            loadData();
+            deleteCashClosing(id)
+            loadData()
           },
         },
-      ]);
+      ])
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
       Alert.alert(
         "Remover fechamento",
         "Não foi possível remover esse fechamento."
-      );
+      )
     }
   }
   function loadData() {
     const results = db
       .objects<CashClosingDTO>("CashClosingSchema")
-      .filtered("date == $0", now);
+      .filtered("date == $0", now)
+    setDATA(Array.from(results))
 
-    setDATA(Array.from(results));
-    const totais = results.map((item) => ({
-      date: item.date,
-      total: item.total,
-      type: item.type,
-    }));
-
-    totais.forEach(createArray);
-    function createArray(total) {
-      const array = new Array(total);
-      cashClosings.push(array);
-      setArray(cashClosings);
-    }
-
-    let soma = 0;
-    cashClosings.forEach(cashClosingSum);
-    function cashClosingSum(total) {
-      const somas = total.map((item) => item.total);
-      let i = 0;
-
-      for (; somas[i]; ) {
-        soma += somas[i];
-        setSum(soma);
-        i++;
-      }
-    }
+    const calculateSum = results.reduce((acc, item) => acc + item.total, 0)
+    setSum(calculateSum)
   }
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData()
+  }, [])
   return (
-    <Container>
-      <Text>Total</Text>
-      <Controller
-        control={control}
-        name="total"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="0.0"
-            onBlur={onBlur}
-            keyboardType="decimal-pad"
-            onChangeText={onChange}
-            value={value?.toString() ?? ""}
-          />
+    <ScrollView>
+      <Container>
+        <CashClosingText>Total</CashClosingText>
+        <Controller
+          control={control}
+          name="total"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="0.0"
+              keyboardType="decimal-pad"  
+              value={value ?? ''}
+              onChangeText={onChange}
+            />
+          )}
+        />
+        {errors.total && (
+          <Text style={styles.error}>{errors.total.message}</Text>
         )}
-      />
-      {errors.total && <Text style={styles.error}>{errors.total.message}</Text>}
-      <Text>Tipo</Text>
-      <Controller
-        control={control}
-        name="type"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="Se foi pix, cartão ou despesa"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value ?? ""}
-            style={styles.input}
-          />
-        )}
-      />
-      {errors.type && <Text style={styles.error}>{errors.type.message}</Text>}
-      <Register
-        onPress={handleSubmit(registerCashClosing)}
-        title="Registrar"
-        disabled={isSubmitting}
-      />
-      <SectionList
-        sections={[{ title: "Fechamentos do dia", data: DATA }]}
-        keyExtractor={(item, index) => item.id + index}
-        ListEmptyComponent={<Text>Não tem nada ainda</Text>}
-        renderItem={({ item }) => (
-          <CashClosingCard
-            item={item}
-            onDelete={()=>handleRemoveCashClosing(item.id)}
-          />
-        )}
-      />{" "}
-      <Heading>
-        Total do dia:{" "}
-        {new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(sum)}
-      </Heading>
-    </Container>
-  );
+        <CashClosingText>Tipo</CashClosingText>
+        <Controller
+          control={control}
+          name="type"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="Se foi pix, cartão ou despesa"
+              onChangeText={onChange}  
+              value={value ?? ''}
+            />
+          )}
+        />
+        {errors.type && <Text style={styles.error}>{errors.type.message}</Text>}
+        <Register
+          onPress={handleSubmit(registerCashClosing)}
+          disabled={isSubmitting}
+          isLoading={isSubmitting}
+        >
+          <CashClosingText>Registrar</CashClosingText>
+        </Register>
+        <SectionList
+          sections={[{ title: "Fechamentos do dia", data: DATA }]}
+          ListEmptyComponent={<Text>Não tem nada ainda</Text>}
+          renderItem={({ item }) => (
+            <CashClosingCard
+              item={item}
+              onDelete={() => handleRemoveCashClosing(item.id)}
+            />
+          )}
+        />{" "}
+        <Title>
+          Total do dia:{" "}
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(sum)}
+        </Title>
+      </Container>
+    </ScrollView>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -191,4 +155,4 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
   },
-});
+})

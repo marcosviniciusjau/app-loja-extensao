@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 import React from "react";
 
 import { CashClosingCard } from "@components/CashClosingCard";
+import { deleteCashClosing, fetchCashClosing } from "@dao/CashClosingDAO";
+import { CashClosingText, Container } from "@components/CashClosingCard/styles";
+import { ButtonIcon } from "@components/ButtonIcon";
 
 export function ListWeekCashClosing() {
   const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
@@ -20,10 +23,7 @@ export function ListWeekCashClosing() {
         {
           text: "OK",
           onPress: async () => {
-            db.write(() =>
-              db.delete(db.objects("CashClosingSchema").filtered("id = $0", id))
-            );
-
+            deleteCashClosing(id);
             loadData();
           },
         },
@@ -38,8 +38,9 @@ export function ListWeekCashClosing() {
     }
   }
   function loadData() {
-    const results = db.objects<CashClosingDTO>("CashClosingSchema");
-    setCashClosing(results);
+    const results = fetchCashClosing();
+
+    setCashClosing(results as unknown as CashClosing[]);
   }
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export function ListWeekCashClosing() {
   return (
     <VStack flex={1}>
       <SectionList
-        sections={[{ title: "Fechamentos do dia", data: cashClosing }]}
+        sections={[{ title: "Fechamentos da semana", data: cashClosing }]}
         ListEmptyComponent={() => (
           <Text color="gray.100" textAlign="center">
             Não há registros ainda.
@@ -62,7 +63,6 @@ export function ListWeekCashClosing() {
           />
         )}
       />
-
     </VStack>
   );
 }

@@ -8,11 +8,10 @@ export const Container = styled(TouchableOpacity) <ContainerProps>`
 display: flex;
 gap: 15px;
 flex-direction: row;
-width: '100%';
-padding: 22px;
-margin: 24px;
+padding: 12px;
+margin: 14px;
 border-radius: 14px;
-background-color:#0056b3;
+background-color:#510996;
 `
 
 export const CashClosingText = styled(Text)`

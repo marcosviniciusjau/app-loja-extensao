@@ -1,17 +1,8 @@
 import { Realm } from "@realm/react"
 
 export const db = new Realm({
-  path: 'UserDB.realm',
+  path: 'CashClosingDB.realm',
   schema: [
-    {
-      name: 'UserSchema',
-      primaryKey: 'id',
-      properties: {
-        id: 'string',
-        username: 'string',
-        password: 'string'
-      }
-    },
     {
       name: 'CashClosingSchema',
       primaryKey: 'id',

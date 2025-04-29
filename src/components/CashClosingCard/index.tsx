@@ -1,6 +1,6 @@
 import { TouchableOpacityProps } from "react-native";
 import { Container, CashClosingText } from "./styles";
-import { Button } from "native-base";
+import { Button, useTheme } from "native-base";
 import React, { useEffect, useState } from "react";
 import { CashClosing } from "@dtos/CashClosing";
 import { ButtonIcon } from "@components/ButtonIcon";
@@ -9,6 +9,7 @@ type Props = TouchableOpacityProps & {
   item: CashClosing;
 };
 export function CashClosingCard({ item, onDelete, ...rest }: Props) {
+  const { sizes, colors } = useTheme();
   return (
     <Container {...rest}>
       <CashClosingText>{item.date}</CashClosingText>
@@ -20,7 +21,7 @@ export function CashClosingCard({ item, onDelete, ...rest }: Props) {
         }).format(item.total)}
       </CashClosingText>
       <CashClosingText>{item.type}</CashClosingText>
-      <ButtonIcon icon="trash" onPress={onDelete}/>
+      <ButtonIcon icon="trash" color={colors.white} onPress={onDelete} />
     </Container>
   );
 }

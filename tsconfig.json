@@ -20,15 +20,6 @@
       "@dtos/*": [
         "./src/dtos/*"
       ],
-      "@services/*": [
-        "./src/services/*"
-      ],
-      "@hooks/*": [
-        "./src/hooks/*"
-      ],
-      "@contexts/*": [
-        "./src/contexts/*"
-      ],
       "@routes/*": [
         "./src/routes/*"
       ],
