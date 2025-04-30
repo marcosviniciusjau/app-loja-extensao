@@ -24,6 +24,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b4903a30-8809-4489-8ee5-dbd5461bd339"
+      }
+    },
+    "owner": "marcosviniciusjahu"
   }
 }

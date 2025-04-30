@@ -1,10 +1,8 @@
 import { TouchableOpacity } from "react-native";
-import styled from "styled-components/native";
+import { styled } from 'dripsy'
 import { Text } from "native-base";
-type ContainerProps = {
-  isSameDay: boolean
-}
-export const Container = styled(TouchableOpacity) <ContainerProps>`
+
+export const Container = styled(TouchableOpacity)`
 display: flex;
 gap: 15px;
 flex-direction: row;

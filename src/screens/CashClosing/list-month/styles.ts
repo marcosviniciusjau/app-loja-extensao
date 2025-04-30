@@ -1,6 +1,7 @@
 import { Heading } from "native-base";
-import styled from "styled-components/native";
+import { styled } from 'dripsy'
 
+import { View, TextInput } from "react-native";
 export const Main = styled.View`
 max-width: 100%;
 margin: 15px;

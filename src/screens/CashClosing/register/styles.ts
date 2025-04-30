@@ -1,6 +1,6 @@
 import { Button, Heading } from "native-base";
-import styled from "styled-components/native";
-
+import { styled } from 'dripsy'
+import { View, TextInput } from "react-native";
 export const Container = styled.View`
 padding: 8px;
 display: 'grid';

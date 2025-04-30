@@ -1,5 +1,6 @@
-import styled from "styled-components/native";
+import { styled } from 'dripsy'
 
+import { View, Text } from "react-native";
 export const Container = styled.View`
 display: 'grid';
 `;
