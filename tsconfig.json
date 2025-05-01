@@ -25,6 +25,12 @@
       ],
       "@theme/*": [
         "./src/theme/*"
+      ],
+      "@/*": [
+        "./*"
+      ],
+      "tailwind.config": [
+        "./tailwind.config.js"
       ]
     }
   }

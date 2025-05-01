@@ -1,6 +1,5 @@
-import { Alert, Text } from "react-native"
+import { Alert, Text,StyleSheet, SectionList } from "react-native"
 import { Controller, useForm } from "react-hook-form"
-import { StyleSheet, SectionList } from "react-native"
 import { db } from "@db/index"
 import { CashClosing as CashClosingDTO } from "@dtos/CashClosing"
 import { useEffect, useState } from "react"
@@ -12,20 +11,20 @@ import { Container, Input, Register, Title } from "./styles"
 import { CashClosingCard } from "@components/CashClosingCard"
 import { CashClosingText } from "@components/CashClosingCard/styles"
 import { addCashClosing, deleteCashClosing } from "@dao/CashClosingDAO"
-import { ScrollView } from "native-base"
+import { ScrollView } from "@gluestack-ui/themed"
 
 const cashClosingBody = zod.object({
   total: zod.coerce.number().positive("Informe um valor positivo"),
   type: zod.string().min(1, "Informe um tipo"),
-})
+});
 
-export type CashClosingFormData = zod.infer<typeof cashClosingBody>
+export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function RegisterCashClosing() {
-  const [DATA, setDATA] = useState<CashClosingDTO[]>([])
+  const [DATA, setDATA] = useState<CashClosingDTO[]>([]);
 
-  const [sum, setSum] = useState(0)
-  const now = dayjs().format("DD/MM/YYYY")
+  const [sum, setSum] = useState(0);
+  const now = dayjs().format("DD/MM/YYYY");
   const {
     control,
     handleSubmit,
@@ -33,18 +32,18 @@ export function RegisterCashClosing() {
     reset,
   } = useForm<CashClosingFormData>({
     resolver: zodResolver(cashClosingBody),
-  })
+  });
 
   async function registerCashClosing(data: CashClosingFormData) {
     try {
       //@ts-ignore
-      addCashClosing(data)
+      addCashClosing(data);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
 
-    reset()
-    loadData()
+    reset();
+    loadData();
   }
 
   async function handleRemoveCashClosing(id: string) {
@@ -57,33 +56,33 @@ export function RegisterCashClosing() {
         {
           text: "OK",
           onPress: async () => {
-            deleteCashClosing(id)
-            loadData()
+            deleteCashClosing(id);
+            loadData();
           },
         },
-      ])
+      ]);
     } catch (error) {
-      console.log(error)
+      console.log(error);
 
       Alert.alert(
         "Remover fechamento",
         "Não foi possível remover esse fechamento."
-      )
+      );
     }
   }
   function loadData() {
     const results = db
       .objects<CashClosingDTO>("CashClosingSchema")
-      .filtered("date == $0", now)
-    setDATA(Array.from(results))
+      .filtered("date == $0", now);
+    setDATA(Array.from(results));
 
-    const calculateSum = results.reduce((acc, item) => acc + item.total, 0)
-    setSum(calculateSum)
+    const calculateSum = results.reduce((acc, item) => acc + item.total, 0);
+    setSum(calculateSum);
   }
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
   return (
     <ScrollView>
       <Container>
@@ -94,8 +93,8 @@ export function RegisterCashClosing() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               placeholder="0.0"
-              keyboardType="decimal-pad"  
-              value={value ?? ''}
+              keyboardType="decimal-pad"
+              value={value.toString() ?? ""}
               onChangeText={onChange}
             />
           )}
@@ -110,8 +109,8 @@ export function RegisterCashClosing() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               placeholder="Se foi pix, cartão ou despesa"
-              onChangeText={onChange}  
-              value={value ?? ''}
+              onChangeText={onChange}
+              value={value ?? ""}
             />
           )}
         />
@@ -142,7 +141,7 @@ export function RegisterCashClosing() {
         </Title>
       </Container>
     </ScrollView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -155,4 +154,4 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
   },
-})
+});

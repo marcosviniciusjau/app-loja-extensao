@@ -1,18 +1,28 @@
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native"
 import { styled } from 'dripsy'
-import { Text } from "native-base";
+import { Text } from "@gluestack-ui/themed"
 
-export const Container = styled(TouchableOpacity)`
-display: flex;
-gap: 15px;
-flex-direction: row;
-padding: 12px;
-margin: 14px;
-border-radius: 14px;
-background-color:#510996;
-`
+export const Container = styled(TouchableOpacity)({
+  display: 'flex',
+  gap: '15px',
+  flexDirection: 'row',
+  padding: '12px',
+  margin: ' 14px',
+  borderRadius: '14px',
+  backgroundColor: '#510996',
+})
 
-export const CashClosingText = styled(Text)`
-color: #fff;
-font-size: 16px;
-`;
+export const Form = styled(TouchableOpacity)({
+  display: 'flex',
+  gap: '15px',
+  flexDirection: 'row',
+  padding: '12px',
+  margin: '14px',
+  borderRadius: '14px',
+  backgroundColor: '#510996',
+})
+
+export const CashClosingText = styled(Text)({
+  color: '#fff',
+  fontSize: '16px',
+})

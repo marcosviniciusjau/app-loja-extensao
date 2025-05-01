@@ -1,16 +1,13 @@
-import { Alert } from "react-native";
-import { VStack, SectionList, Text } from "native-base";
+//@ts-nocheck
+import { Alert } from "react-native"
+import { VStack, SectionList, Text } from "@gluestack-ui/themed"
 
-import { db } from "@db/index";
-import { CashClosing, CashClosing as CashClosingDTO } from "@dtos/CashClosing";
-import { useEffect, useState } from "react";
-import React from "react";
+import { CashClosing } from "@dtos/CashClosing"
+import { useEffect, useState } from "react"
+import React from "react"
 
-import { CashClosingCard } from "@components/CashClosingCard";
-import { deleteCashClosing, fetchCashClosing } from "@dao/CashClosingDAO";
-import { CashClosingText, Container } from "@components/CashClosingCard/styles";
-import { ButtonIcon } from "@components/ButtonIcon";
-
+import { CashClosingCard } from "@components/CashClosingCard"
+import { deleteCashClosing, fetchCashClosing } from "@dao/CashClosingDAO"
 export function ListWeekCashClosing() {
   const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
   async function handleRemoveCashClosing(id: string) {
