@@ -1,12 +1,13 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import React from "react"
+import { FontAwesome } from "@expo/vector-icons"
+
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { RegisterCashClosing } from "@screens/CashClosing/register"
 import { ListWeekCashClosing } from "@screens/CashClosing/list-week"
 import { ListMonthCashClosing } from "@screens/CashClosing/list-month"
-import { FontAwesome } from "@expo/vector-icons"
+
 const { Navigator, Screen } = createBottomTabNavigator()
 export function Routes() {
-
   const iconSize = 24
   return (
     <Navigator>
@@ -17,7 +18,7 @@ export function Routes() {
           tabBarActiveTintColor: '#fff',
           tabBarInactiveTintColor: '#fff',
           tabBarLabelStyle: { fontSize: 24 },
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <FontAwesome name="home" size={iconSize} color={"#510996"} />
           ),
         }}
@@ -29,7 +30,7 @@ export function Routes() {
           tabBarActiveTintColor: '#fff',
           tabBarInactiveTintColor: '#fff',
           tabBarLabelStyle: { fontSize: 24 },
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <FontAwesome name="calendar" size={iconSize} color={"#510996"} />
           ),
         }}
@@ -41,7 +42,7 @@ export function Routes() {
           tabBarActiveTintColor: '#fff',
           tabBarInactiveTintColor: '#fff',
           tabBarLabelStyle: { fontSize: 24 },
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <FontAwesome name="money" size={iconSize} color={"#510996"} />
           ),
         }}

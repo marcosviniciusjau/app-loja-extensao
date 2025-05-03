@@ -1,17 +1,19 @@
-import { Alert, Text,StyleSheet, SectionList } from "react-native"
-import { Controller, useForm } from "react-hook-form"
-import { db } from "@db/index"
-import { CashClosing as CashClosingDTO } from "@dtos/CashClosing"
-import { useEffect, useState } from "react"
-import React from "react"
-import zod from "zod"
-import dayjs from "dayjs"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Container, Input, Register, Title } from "./styles"
-import { CashClosingCard } from "@components/CashClosingCard"
-import { CashClosingText } from "@components/CashClosingCard/styles"
-import { addCashClosing, deleteCashClosing } from "@dao/CashClosingDAO"
-import { ScrollView } from "@gluestack-ui/themed"
+import React from "react";
+import zod from "zod";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import { Alert, Text, StyleSheet, SectionList } from "react-native";
+import { ScrollView } from "@gluestack-ui/themed";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { db } from "@db/index";
+import { addCashClosing, deleteCashClosing } from "@dao/CashClosingDAO";
+import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
+
+import { CashClosingCard } from "@components/CashClosingCard";
+import { CashClosingText } from "@components/CashClosingCard/styles";
+import { Container, Input, Register, Title } from "./styles";
 
 const cashClosingBody = zod.object({
   total: zod.coerce.number().positive("Informe um valor positivo"),
@@ -21,10 +23,11 @@ const cashClosingBody = zod.object({
 export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function RegisterCashClosing() {
-  const [DATA, setDATA] = useState<CashClosingDTO[]>([]);
+  const [cashClosings, setCashClosings] = useState<CashClosingDTO[]>([]);
 
   const [sum, setSum] = useState(0);
   const now = dayjs().format("DD/MM/YYYY");
+
   const {
     control,
     handleSubmit,
@@ -39,6 +42,7 @@ export function RegisterCashClosing() {
       //@ts-ignore
       addCashClosing(data);
     } catch (error) {
+      Alert.alert("Erro", "Nao foi possivel realizar o cadastro");
       console.error(error);
     }
 
@@ -74,7 +78,7 @@ export function RegisterCashClosing() {
     const results = db
       .objects<CashClosingDTO>("CashClosingSchema")
       .filtered("date == $0", now);
-    setDATA(Array.from(results));
+    setCashClosings(Array.from(results));
 
     const calculateSum = results.reduce((acc, item) => acc + item.total, 0);
     setSum(calculateSum);
@@ -83,6 +87,7 @@ export function RegisterCashClosing() {
   useEffect(() => {
     loadData();
   }, []);
+
   return (
     <ScrollView>
       <Container>
@@ -90,7 +95,7 @@ export function RegisterCashClosing() {
         <Controller
           control={control}
           name="total"
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <Input
               placeholder="0.0"
               keyboardType="decimal-pad"
@@ -106,7 +111,7 @@ export function RegisterCashClosing() {
         <Controller
           control={control}
           name="type"
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, value } }) => (
             <Input
               placeholder="Se foi pix, cartão ou despesa"
               onChangeText={onChange}
@@ -118,12 +123,11 @@ export function RegisterCashClosing() {
         <Register
           onPress={handleSubmit(registerCashClosing)}
           disabled={isSubmitting}
-          isLoading={isSubmitting}
         >
           <CashClosingText>Registrar</CashClosingText>
         </Register>
         <SectionList
-          sections={[{ title: "Fechamentos do dia", data: DATA }]}
+          sections={[{ title: "Fechamentos do dia", data: cashClosings }]}
           ListEmptyComponent={<Text>Não tem nada ainda</Text>}
           renderItem={({ item }) => (
             <CashClosingCard

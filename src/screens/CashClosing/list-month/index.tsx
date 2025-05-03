@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react"
 import React from "react"
+import { useEffect, useState } from "react"
+
+import { fetchCashClosing } from "@dao/CashClosingDAO"
+import { ButtonIcon } from "@components/ButtonIcon"
 
 import { Container, Main, Sums, Title } from "./styles"
-import { ButtonIcon } from "@components/ButtonIcon"
-import { fetchCashClosing } from "@dao/CashClosingDAO"
 
 export function ListMonthCashClosing() {
   const [sumRevenues, setSumRevenues] = useState<number>()
@@ -44,6 +45,7 @@ export function ListMonthCashClosing() {
     )
     setSumExpenses(expensesSum)
   }
+  
   useEffect(() => {
     loadData()
   }, [])

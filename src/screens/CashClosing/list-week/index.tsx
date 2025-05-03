@@ -1,15 +1,15 @@
-//@ts-nocheck
+import React from "react"
+import { useEffect, useState } from "react"
+
 import { Alert } from "react-native"
 import { VStack, SectionList, Text } from "@gluestack-ui/themed"
 
-import { CashClosing } from "@dtos/CashClosing"
-import { useEffect, useState } from "react"
-import React from "react"
-
-import { CashClosingCard } from "@components/CashClosingCard"
 import { deleteCashClosing, fetchCashClosing } from "@dao/CashClosingDAO"
+import { CashClosing } from "@dtos/CashClosing"
+import { CashClosingCard } from "@components/CashClosingCard"
 export function ListWeekCashClosing() {
-  const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
+  const [cashClosing, setCashClosing] = useState<CashClosing[]>([])
+
   async function handleRemoveCashClosing(id: string) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [
@@ -24,33 +24,38 @@ export function ListWeekCashClosing() {
             loadData();
           },
         },
-      ]);
+      ])
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
       Alert.alert(
         "Remover fechamento",
         "Não foi possível remover esse fechamento."
-      );
+      )
     }
   }
   function loadData() {
-    const results = fetchCashClosing();
+    const results = fetchCashClosing()
 
-    setCashClosing(results as unknown as CashClosing[]);
+    setCashClosing([...results])
   }
 
   useEffect(() => {
-    loadData();
+    loadData()
   }, []);
 
   return (
     <VStack flex={1}>
       <SectionList
-        sections={[{ title: "Fechamentos da semana", data: cashClosing }]}
+        sections={[{ key: "Fechamentos da semana", data: cashClosing }]}
         ListEmptyComponent={() => (
           <Text color="gray.100" textAlign="center">
             Não há registros ainda.
+          </Text>
+        )} 
+        renderSectionHeader={({ section }) => (
+          <Text fontWeight="bold">
+            {section.key}
           </Text>
         )}
         renderItem={({ item }) => (
@@ -61,5 +66,5 @@ export function ListWeekCashClosing() {
         )}
       />
     </VStack>
-  );
+  )
 }

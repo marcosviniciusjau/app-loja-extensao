@@ -1,29 +1,22 @@
 {
   "expo": {
-    "name": "app-loja",
+    "name": "Fechamento Caixa",
     "slug": "app-loja",
     "version": "1.0.0",
     "orientation": "portrait",
+    "jsEngine": "jsc",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
+      "resizeMode": "cover"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#00000000"
       },
-      "package": "com.anonymous.apploja"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "package": "com.marcosviniciusjahu.apploja"
     },
     "extra": {
       "eas": {

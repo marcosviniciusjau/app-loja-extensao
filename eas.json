@@ -3,6 +3,11 @@
     "version": ">= 14.2.0",
     "appVersionSource": "remote"
   },
+  "env": {
+    "EXPO_USE_PROJECT_KOTLIN_VERSION": "1.9.22",
+    "EXPO_ANDROID_GRADLE_PLUGIN_VERSION": "8.2.1",
+    "EXPO_GRADLE_WRAPPER_VERSION": "8.6"
+  },
   "build": {
     "development": {
       "developmentClient": true,
@@ -12,7 +17,7 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true,  
+      "autoIncrement": true,
       "cache": {
         "disabled": true
       }
