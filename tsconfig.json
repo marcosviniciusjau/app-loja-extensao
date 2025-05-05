@@ -6,7 +6,7 @@
     "baseUrl": "./",
     "paths": {
       "@components/*": [
-        "./src/components/*"
+        "./src/screens/CashClosing/components/*"
       ],
       "@screens/*": [
         "./src/screens/*"
@@ -29,9 +29,7 @@
       "@/*": [
         "./*"
       ],
-      "tailwind.config": [
-        "./tailwind.config.js"
-      ]
+
     }
   }
 }

@@ -1,6 +1,5 @@
-import { TouchableOpacity } from "react-native"
-import { styled } from 'dripsy'
-import { Text } from "@gluestack-ui/themed"
+import { TouchableOpacity, Text } from "react-native"
+import styled from "styled-components/native";
 
 export const Container = styled(TouchableOpacity)({
   display: 'flex',

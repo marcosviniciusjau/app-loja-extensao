@@ -1,6 +1,7 @@
-import { Button, Heading } from "@gluestack-ui/themed"
-import { styled } from 'dripsy'
-import { View, TextInput } from "react-native"
+import styled from "styled-components/native";
+import { TextInput, View } from "react-native"
+
+import { Heading, Text, Button } from "native-base"
 
 export const Container = styled(View)({
   padding: '8px',
@@ -19,6 +20,12 @@ export const Title = styled(Heading)({
   color: 'white',
   marginTop: '20',
 })
+
+export const CashClosingText = styled(Text)({
+  color: '#fff',
+  fontSize: '16px',
+})
+
 
 export const Register = styled(Button)({
   margin: '14px',

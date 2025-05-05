@@ -2,17 +2,15 @@ import React from "react";
 import zod from "zod";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Alert, Text, StyleSheet, SectionList } from "react-native";
-import { ScrollView } from "@gluestack-ui/themed";
+import { Alert, StyleSheet, Text, ScrollView, SectionList } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { Heading } from "native-base";
 import { db } from "@db/index";
 import { addCashClosing, deleteCashClosing } from "@dao/CashClosingDAO";
 import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 
 import { CashClosingCard } from "@components/CashClosingCard";
-import { CashClosingText } from "@components/CashClosingCard/styles";
 import { Container, Input, Register, Title } from "./styles";
 
 const cashClosingBody = zod.object({
@@ -59,9 +57,10 @@ export function RegisterCashClosing() {
         },
         {
           text: "OK",
-          onPress: async () => {
-            deleteCashClosing(id);
-            loadData();
+          onPress: async () => { 
+             db.write(() =>
+            db.delete(db.objects("CashClosingSchema").filtered("id = $0", id))
+          )
           },
         },
       ]);
@@ -79,7 +78,6 @@ export function RegisterCashClosing() {
       .objects<CashClosingDTO>("CashClosingSchema")
       .filtered("date == $0", now);
     setCashClosings(Array.from(results));
-
     const calculateSum = results.reduce((acc, item) => acc + item.total, 0);
     setSum(calculateSum);
   }
@@ -89,73 +87,59 @@ export function RegisterCashClosing() {
   }, []);
 
   return (
-    <ScrollView>
-      <Container>
-        <CashClosingText>Total</CashClosingText>
-        <Controller
-          control={control}
-          name="total"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              placeholder="0.0"
-              keyboardType="decimal-pad"
-              value={value.toString() ?? ""}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.total && (
-          <Text style={styles.error}>{errors.total.message}</Text>
+    <Container>
+      <Heading color="white" size="md">
+        Total
+      </Heading>
+      <Controller
+        control={control}
+        name="total"
+        render={({ field: { onChange, value } }) => (
+          <Input
+            placeholder="0.0"
+            keyboardType="decimal-pad"
+            value={value ?? ""}
+            onChangeText={onChange}
+          />
         )}
-        <CashClosingText>Tipo</CashClosingText>
-        <Controller
-          control={control}
-          name="type"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              placeholder="Se foi pix, cartão ou despesa"
-              onChangeText={onChange}
-              value={value ?? ""}
-            />
-          )}
-        />
-        {errors.type && <Text style={styles.error}>{errors.type.message}</Text>}
-        <Register
-          onPress={handleSubmit(registerCashClosing)}
-          disabled={isSubmitting}
-        >
-          <CashClosingText>Registrar</CashClosingText>
-        </Register>
-        <SectionList
-          sections={[{ title: "Fechamentos do dia", data: cashClosings }]}
-          ListEmptyComponent={<Text>Não tem nada ainda</Text>}
-          renderItem={({ item }) => (
-            <CashClosingCard
-              item={item}
-              onDelete={() => handleRemoveCashClosing(item.id)}
-            />
-          )}
-        />{" "}
-        <Title>
-          Total do dia:{" "}
-          {new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(sum)}
-        </Title>
-      </Container>
-    </ScrollView>
+      />
+      <Heading color="white" mt={5} size="md">
+        Tipo
+      </Heading>
+      <Controller
+        control={control}
+        name="type"
+        render={({ field: { onChange, value } }) => (
+          <Input
+            placeholder="Se foi pix, cartão ou despesa"
+            onChangeText={onChange}
+            value={value ?? ""}
+          />
+        )}
+      />
+      <Register
+        onPress={handleSubmit(registerCashClosing)}
+        disabled={isSubmitting}
+      >
+        <Heading color="white">Registrar</Heading>
+      </Register>
+      <SectionList
+        sections={[{ title: "Fechamentos do dia", data: cashClosings }]}
+        ListEmptyComponent={<Text>Nenhum fechamento cadastrado.</Text>}
+        renderItem={({ item }) => (
+          <CashClosingCard
+            item={item}
+            onDelete={() => handleRemoveCashClosing(item.id)}
+          />
+        )}
+      />
+      <Text style={{ color: "white", marginTop: 20 }}>
+        Total do dia:{" "}
+        {sum.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
+      </Text>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  error: {
-    color: "red",
-  },
-  item: {
-    display: "flex",
-    flexDirection: "row",
-    padding: 20,
-    borderBottomWidth: 1,
-  },
-});

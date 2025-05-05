@@ -1,23 +1,23 @@
-import React from "react"
-import { FontAwesome } from "@expo/vector-icons"
+import React from "react";
+import { FontAwesome } from "@expo/vector-icons";
 
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { RegisterCashClosing } from "@screens/CashClosing/register"
-import { ListWeekCashClosing } from "@screens/CashClosing/list-week"
-import { ListMonthCashClosing } from "@screens/CashClosing/list-month"
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { RegisterCashClosing } from "@screens/CashClosing/register";
+import { ListWeekCashClosing } from "@screens/CashClosing/list-week";
+import { ListMonthCashClosing } from "@screens/CashClosing/list-month";
 
-const { Navigator, Screen } = createBottomTabNavigator()
+const { Navigator, Screen } = createBottomTabNavigator();
 export function Routes() {
-  const iconSize = 24
+  const iconSize = 20;
   return (
     <Navigator>
       <Screen
         name="Home"
         component={RegisterCashClosing}
         options={{
-          tabBarActiveTintColor: '#fff',
-          tabBarInactiveTintColor: '#fff',
-          tabBarLabelStyle: { fontSize: 24 },
+          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: "#fff",
+          tabBarLabelStyle: { fontSize: 15 },
           tabBarIcon: () => (
             <FontAwesome name="home" size={iconSize} color={"#510996"} />
           ),
@@ -27,9 +27,9 @@ export function Routes() {
         name="Lista Semanal"
         component={ListWeekCashClosing}
         options={{
-          tabBarActiveTintColor: '#fff',
-          tabBarInactiveTintColor: '#fff',
-          tabBarLabelStyle: { fontSize: 24 },
+          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: "#fff",
+          tabBarLabelStyle: { fontSize: 15 },
           tabBarIcon: () => (
             <FontAwesome name="calendar" size={iconSize} color={"#510996"} />
           ),
@@ -39,9 +39,9 @@ export function Routes() {
         name="Lista Mensal"
         component={ListMonthCashClosing}
         options={{
-          tabBarActiveTintColor: '#fff',
-          tabBarInactiveTintColor: '#fff',
-          tabBarLabelStyle: { fontSize: 24 },
+          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: "#fff",
+          tabBarLabelStyle: { fontSize: 15 },
           tabBarIcon: () => (
             <FontAwesome name="money" size={iconSize} color={"#510996"} />
           ),

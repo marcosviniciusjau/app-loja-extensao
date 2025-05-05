@@ -1,87 +1,87 @@
-import React from "react"
-import { useEffect, useState } from "react"
+import React from "react";
+import { useEffect, useState } from "react";
 
-import { fetchCashClosing } from "@dao/CashClosingDAO"
-import { ButtonIcon } from "@components/ButtonIcon"
+import { fetchCashClosing } from "@dao/CashClosingDAO";
+import { ButtonIcon } from "../components/ButtonIcon";
 
-import { Container, Main, Sums, Title } from "./styles"
+import { Container, Main, Sums, Title } from "./styles";
 
 export function ListMonthCashClosing() {
-  const [sumRevenues, setSumRevenues] = useState<number>()
-  const [sumExpenses, setSumExpenses] = useState<number>()
-  const [sumPurchases, setSumPurchases] = useState<number>()
+  const [sumRevenues, setSumRevenues] = useState<number>(0);
+  const [sumExpenses, setSumExpenses] = useState<number>(0);
+  const [sumPurchases, setSumPurchases] = useState<number>(0);
+  const mainColor = "#510996";
   function loadData() {
     const results = fetchCashClosing()
-
-    const revenuesTypes = ["Crédito", "Débito", "Pix", "Dinheiro"]
+    const revenuesTypes = ["Crédito", "Débito", "Pix", "Dinheiro"];
     const revenueResults = results.filter((item) =>
       revenuesTypes.includes(item.type)
-    )
+    );
 
     const purchasesResults = results.filter((item) =>
       item.type.includes("Compra")
-    )
-    const purchasesTypes = purchasesResults.map((item) => item.type)
+    );
+    const purchasesTypes = purchasesResults.map((item) => item.type);
 
     const expensesResults = results.filter(
       (item) =>
         !revenuesTypes.includes(item.type) &&
         !purchasesTypes.includes(item.type)
-    )
+    );
 
     const purchasesSum = purchasesResults.reduce(
       (acc, item) => acc + item.total,
       0
-    )
-    setSumPurchases(purchasesSum)
+    );
+    setSumPurchases(purchasesSum);
     const revenuesSum = revenueResults.reduce(
       (acc, item) => acc + item.total,
       0
-    )
-    setSumRevenues(revenuesSum)
+    );
+    setSumRevenues(revenuesSum);
     const expensesSum = expensesResults.reduce(
       (acc, item) => acc + item.total,
       0
-    )
-    setSumExpenses(expensesSum)
+    );
+    setSumExpenses(expensesSum);
   }
-  
+
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   return (
     <Main>
       <Container>
-        <ButtonIcon icon="money" color={"#510996"} />
+        <ButtonIcon icon="money" color={mainColor} />
         <Title>Receitas</Title>
         <Sums>
-          {new Intl.NumberFormat("pt-BR", {
+          {sumRevenues.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
-          }).format(sumRevenues!)}
+          }) || 0}
         </Sums>
       </Container>
       <Container>
-        <ButtonIcon icon="credit-card" color={"#510996"} />
+        <ButtonIcon icon="credit-card" color={mainColor} />
         <Title>Gastos</Title>
         <Sums>
-          {new Intl.NumberFormat("pt-BR", {
+          {sumExpenses.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
-          }).format(sumExpenses!)}
+          }) || 0}
         </Sums>
       </Container>
       <Container>
-        <ButtonIcon icon="shopping-bag" color={"#510996"} />
+        <ButtonIcon icon="shopping-bag" color={mainColor} />
         <Title>Compras</Title>
         <Sums>
-          {new Intl.NumberFormat("pt-BR", {
+          {sumPurchases.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
-          }).format(sumPurchases!)}
+          }) || 0}
         </Sums>
       </Container>
     </Main>
-  )
+  );
 }

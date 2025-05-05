@@ -1,11 +1,11 @@
-import { styled } from 'dripsy'
-import { View, Text } from "react-native"
+import styled from "styled-components/native";
+import { Text, VStack } from "native-base"
 
-export const Container = styled(View)({
+export const Container = styled(VStack)({
   display: 'grid',
 })
 
-export const Form = styled(View)({
+export const Form = styled(VStack)({
   display: 'grid',
 })
 

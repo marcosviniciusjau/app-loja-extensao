@@ -1,15 +1,14 @@
-import { Heading } from "@gluestack-ui/themed"
-import { styled } from 'dripsy'
+import styled from "styled-components/native";
 
-import { View } from "react-native"
+import { Heading, VStack } from "native-base"
 
-export const Main = styled(View)({
+export const Main = styled(VStack)({
   maxWidth: '100%',
   margin: '15px',
   gap: '5px',
 })
 
-export const Container = styled(View)({
+export const Container = styled(VStack)({
   display: 'flex',
   gap: '5px',
   padding: '24px',
