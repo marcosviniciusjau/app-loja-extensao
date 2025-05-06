@@ -30,14 +30,3 @@ export function fetchCashClosing() {
     throw new AppError('Ocorreu um erro ao listar as despesas')
   }
 }
-
-export function deleteCashClosing(id: string) {
-  try {
-    db.write(() =>
-      db.delete(db.objects("CashClosingSchema").filtered("id = $0", id))
-    )
-  } catch (error) {
-    console.error("Ocorreu um erro ao excluir a despesa", error)
-    throw new AppError('Ocorreu um erro ao excluir a despesa')
-  }
-}

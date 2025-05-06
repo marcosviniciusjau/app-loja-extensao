@@ -1,4 +1,4 @@
-import { Container, Icon } from "native-base";
+import { Container, Icon, Text } from "native-base";
 import React from "react";
 import { TouchableOpacityProps } from "react-native";
 

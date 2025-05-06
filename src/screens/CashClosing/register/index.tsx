@@ -2,12 +2,12 @@ import React from "react";
 import zod from "zod";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, ScrollView, SectionList } from "react-native";
+import { Alert, ScrollView, SectionList } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Heading } from "native-base";
+import { Heading, Text } from "native-base";
 import { db } from "@db/index";
-import { addCashClosing, deleteCashClosing } from "@dao/CashClosingDAO";
+import { addCashClosing } from "@dao/CashClosingDAO";
 import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 
 import { CashClosingCard } from "@components/CashClosingCard";
@@ -22,7 +22,7 @@ export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function RegisterCashClosing() {
   const [cashClosings, setCashClosings] = useState<CashClosingDTO[]>([]);
-
+  const errorColor = "#FF3131";
   const [sum, setSum] = useState(0);
   const now = dayjs().format("DD/MM/YYYY");
 
@@ -48,31 +48,6 @@ export function RegisterCashClosing() {
     loadData();
   }
 
-  async function handleRemoveCashClosing(id: string) {
-    try {
-      Alert.alert("Confirmação", "Deseja realmente excluir?", [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "OK",
-          onPress: async () => { 
-             db.write(() =>
-            db.delete(db.objects("CashClosingSchema").filtered("id = $0", id))
-          )
-          },
-        },
-      ]);
-    } catch (error) {
-      console.log(error);
-
-      Alert.alert(
-        "Remover fechamento",
-        "Não foi possível remover esse fechamento."
-      );
-    }
-  }
   function loadData() {
     const results = db
       .objects<CashClosingDTO>("CashClosingSchema")
@@ -103,6 +78,7 @@ export function RegisterCashClosing() {
           />
         )}
       />
+      {errors.total && <Text color={errorColor}>{"Digite um número"}</Text>}
       <Heading color="white" mt={5} size="md">
         Tipo
       </Heading>
@@ -117,6 +93,8 @@ export function RegisterCashClosing() {
           />
         )}
       />
+      {errors.type && <Text color={errorColor}>{"Digite um tipo"}</Text>}
+
       <Register
         onPress={handleSubmit(registerCashClosing)}
         disabled={isSubmitting}
@@ -129,7 +107,6 @@ export function RegisterCashClosing() {
         renderItem={({ item }) => (
           <CashClosingCard
             item={item}
-            onDelete={() => handleRemoveCashClosing(item.id)}
           />
         )}
       />
