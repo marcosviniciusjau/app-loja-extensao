@@ -9,7 +9,7 @@ export const Container = styled(View)({
 })
 
 export const Input = styled(TextInput)({
-  borderColor: ' #510996',
+  borderColor: '#FF3131',
   borderWidth: 1,
   padding: '10px',
   margin: '10px',
@@ -26,12 +26,11 @@ export const CashClosingText = styled(Text)({
   fontSize: '16px',
 })
 
-
 export const Register = styled(Button)({
   margin: '14px',
   height: '55px',
   borderRadius: '18px',
   color: '#fff',
-  backgroundColor: '#510996',
+  backgroundColor: '#FF3131',
 })
 

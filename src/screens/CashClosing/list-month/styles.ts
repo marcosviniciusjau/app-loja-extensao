@@ -17,7 +17,7 @@ export const Container = styled(VStack)({
 
 
 export const Title = styled(Heading)({
-  color: ' #510996',
+  color: ' #FF3131',
   marginTop: 10
 })
 

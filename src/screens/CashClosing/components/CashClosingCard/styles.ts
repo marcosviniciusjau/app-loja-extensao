@@ -8,7 +8,7 @@ export const Container = styled(TouchableOpacity)({
   padding: '12px',
   margin: ' 14px',
   borderRadius: '14px',
-  backgroundColor: '#510996',
+  backgroundColor: '#FF3131',
 })
 
 export const Form = styled(TouchableOpacity)({
@@ -18,7 +18,7 @@ export const Form = styled(TouchableOpacity)({
   padding: '12px',
   margin: '14px',
   borderRadius: '14px',
-  backgroundColor: '#510996',
+  backgroundColor: '#FF3131',
 })
 
 export const CashClosingText = styled(Text)({

@@ -8,7 +8,8 @@ import { ListMonthCashClosing } from "@screens/CashClosing/list-month";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function Routes() {
-  const iconSize = 20;
+  const iconSize = 25
+  const mainColor = "#FF3131"
   return (
     <Navigator>
       <Screen
@@ -19,7 +20,7 @@ export function Routes() {
           tabBarInactiveTintColor: "#fff",
           tabBarLabelStyle: { fontSize: 15 },
           tabBarIcon: () => (
-            <FontAwesome name="home" size={iconSize} color={"#510996"} />
+            <FontAwesome name="home" size={iconSize} color={mainColor} />
           ),
         }}
       />
@@ -31,7 +32,7 @@ export function Routes() {
           tabBarInactiveTintColor: "#fff",
           tabBarLabelStyle: { fontSize: 15 },
           tabBarIcon: () => (
-            <FontAwesome name="calendar" size={iconSize} color={"#510996"} />
+            <FontAwesome name="calendar" size={iconSize} color={mainColor} />
           ),
         }}
       />
@@ -43,7 +44,7 @@ export function Routes() {
           tabBarInactiveTintColor: "#fff",
           tabBarLabelStyle: { fontSize: 15 },
           tabBarIcon: () => (
-            <FontAwesome name="money" size={iconSize} color={"#510996"} />
+            <FontAwesome name="money" size={iconSize} color={mainColor} />
           ),
         }}
       />

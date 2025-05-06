@@ -10,7 +10,7 @@ export function ListMonthCashClosing() {
   const [sumRevenues, setSumRevenues] = useState<number>(0);
   const [sumExpenses, setSumExpenses] = useState<number>(0);
   const [sumPurchases, setSumPurchases] = useState<number>(0);
-  const mainColor = "#510996";
+  const mainColor = "#FF3131";
   function loadData() {
     const results = fetchCashClosing()
     const revenuesTypes = ["Crédito", "Débito", "Pix", "Dinheiro"];

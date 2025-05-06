@@ -133,13 +133,13 @@ export function RegisterCashClosing() {
           />
         )}
       />
-      <Text style={{ color: "white", marginTop: 20 }}>
+      <Heading color="white" mt={10}>
         Total do dia:{" "}
         {sum.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         })}
-      </Text>
+      </Heading>
     </Container>
   );
 }
