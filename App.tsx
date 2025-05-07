@@ -7,12 +7,11 @@ import {
 } from "@react-navigation/native"
 import { RealmProvider } from "@realm/react"
 import { db } from "@db/index"
-import { NativeBaseProvider, useTheme } from "native-base"
+import { NativeBaseProvider } from "native-base"
 import theme from "@theme/index"
 
 import { useColorScheme } from "react-native"
 export default function App() {
-  //const theme = useTheme()
   const colorScheme = useColorScheme()
 
   return (

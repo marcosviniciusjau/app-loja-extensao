@@ -53,7 +53,6 @@ export function RegisterCashClosing() {
       addCashClosing(data);
     } catch (error) {
       Alert.alert("Erro", "Nao foi possivel realizar o cadastro");
-      console.error(error);
     }
 
     reset({ type: "" });
@@ -76,8 +75,6 @@ export function RegisterCashClosing() {
         },
       ]);
     } catch (error) {
-      console.log(error);
-
       Alert.alert(
         "Remover fechamento",
         "Não foi possível remover esse fechamento."

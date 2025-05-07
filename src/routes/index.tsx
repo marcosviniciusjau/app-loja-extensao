@@ -8,12 +8,12 @@ import { ListMonthCashClosing } from "@screens/CashClosing/list-month";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function Routes() {
-  const iconSize = 25
-  const mainColor = "#FF3131"
+  const iconSize = 25;
+  const mainColor = "#FF3131";
   return (
     <Navigator>
       <Screen
-        name="Home"
+        name="Registrar"
         component={RegisterCashClosing}
         options={{
           tabBarActiveTintColor: "#fff",
@@ -25,7 +25,7 @@ export function Routes() {
         }}
       />
       <Screen
-        name="Lista Semanal"
+        name="Relatório Semanal"
         component={ListWeekCashClosing}
         options={{
           tabBarActiveTintColor: "#fff",
@@ -37,7 +37,7 @@ export function Routes() {
         }}
       />
       <Screen
-        name="Lista Mensal"
+        name="Relatório Mensal"
         component={ListMonthCashClosing}
         options={{
           tabBarActiveTintColor: "#fff",

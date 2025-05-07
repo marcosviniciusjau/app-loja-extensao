@@ -53,7 +53,6 @@ export function ListMonthCashClosing() {
       setSumExpenses(expensesSum);
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
-      console.error(error)
     } finally {
       setIsLoading(false);
     }

@@ -30,8 +30,6 @@ export function ListWeekCashClosing() {
         },
       ]);
     } catch (error) {
-      console.log(error);
-
       Alert.alert(
         "Remover fechamento",
         "Não foi possível remover esse fechamento."

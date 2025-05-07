@@ -17,7 +17,6 @@ export async function addCashClosing(cashClosing: CashClosing) {
       }))
     })
   } catch (error) {
-    console.error("Ocorreu um erro ao registrar a despesa", error)
     throw new AppError('Ocorreu um erro ao registrar a despesa. Verifique se digitou todos os campos')
   }
 }
@@ -26,7 +25,6 @@ export function fetchCashClosing() {
   try {
     return db.objects<CashClosing>("CashClosingSchema")
   } catch (error) {
-    console.error("Ocorreu um erro ao listar as despesas", error)
     throw new AppError('Ocorreu um erro ao listar as despesas')
   }
 }
@@ -38,7 +36,6 @@ export function fetchCashClosingToday() {
       .objects<CashClosing>("CashClosingSchema")
       .filtered("date == $0", now);
   } catch (error) {
-    console.error("Ocorreu um erro ao excluir a despesa", error)
     throw new AppError('Ocorreu um erro ao listar as despesas')
   }
 }
@@ -52,7 +49,6 @@ export function deleteCashClosing(id: string) {
       }
     });
   } catch (error) {
-    console.error("Ocorreu um erro ao excluir a despesa", error)
     throw new AppError('Ocorreu um erro ao excluir a despesa')
   }
 }
