@@ -1,36 +1,73 @@
-import React from "react"
-import { useEffect, useState } from "react"
+import React from "react";
+import { useCallback, useState } from "react";
 
-import { Text, VStack } from "native-base"
+import { useFocusEffect } from "@react-navigation/native";
+import { ScrollView, Text, VStack } from "native-base";
 
-import { SectionList } from "react-native"
-import { fetchCashClosing } from "@dao/CashClosingDAO"
-import { CashClosing } from "@dtos/CashClosing"
-import { CashClosingCard } from "@components/CashClosingCard"
+import { Alert, SectionList } from "react-native";
+import { deleteCashClosing, fetchCashClosing } from "@dao/CashClosingDAO";
+import { CashClosing } from "@dtos/CashClosing";
+import { CashClosingCard } from "@components/CashClosingCard";
+import { Loading } from "@components/Loading";
+import { Container } from "./styles";
 export function ListWeekCashClosing() {
-  const [cashClosing, setCashClosing] = useState<CashClosing[]>([])
+  const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  function loadData() {
-    const results = fetchCashClosing()
-    setCashClosing([...results])
+  async function handleRemoveCashClosing(id: string) {
+    try {
+      Alert.alert("Confirmação", "Deseja realmente excluir?", [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            deleteCashClosing(id);
+            fetchCashClosings();
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert(
+        "Remover fechamento",
+        "Não foi possível remover esse fechamento."
+      );
+    }
   }
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  function fetchCashClosings() {
+    try {
+      setIsLoading(true);
+      const results = fetchCashClosing();
+      setCashClosing([...results]);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível listar as despesas");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCashClosings();
+    }, [])
+  );
 
   return (
-    <VStack>
-      <SectionList
-        sections={[{ key: "Fechamentos da semana", data: cashClosing }]}
-        ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
-        renderSectionHeader={({ section }) => <Text>{section.key}</Text>}
-        renderItem={({ item }) => (
-          <CashClosingCard
-            item={item}
+      <Container>
+        {isLoading ? (
+          <Loading/>
+        ) : (
+          <SectionList
+            sections={[{ data: cashClosing }]}
+            ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
+            renderItem={({ item }) => <CashClosingCard item={item} onDelete={() => handleRemoveCashClosing(item.id)}/>}
           />
         )}
-      />
-    </VStack>
+      </Container>
   );
 }

@@ -5,10 +5,11 @@ import { CashClosing } from "@dtos/CashClosing"
 import { ButtonIcon } from "@components/ButtonIcon"
 
 type Props = TouchableOpacityProps & {
+  onDelete: () => void
   item: CashClosing
 }
 
-export function CashClosingCard({ item, ...rest }: Props) {
+export function CashClosingCard({ item, onDelete, ...rest }: Props) {
   return (
     <Container {...rest}>
       <CashClosingText>{item.date}</CashClosingText>
@@ -19,7 +20,8 @@ export function CashClosingCard({ item, ...rest }: Props) {
           currency: "BRL",
         }).format(item.total)}
       </CashClosingText>
-      <CashClosingText>{item.type}</CashClosingText>
+      <CashClosingText>{item.type}</CashClosingText>     
+       <ButtonIcon icon="trash" color={'#fff'} onPress={onDelete} />
     </Container>
   );
 }

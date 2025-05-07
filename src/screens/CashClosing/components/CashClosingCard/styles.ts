@@ -6,20 +6,11 @@ export const Container = styled(TouchableOpacity)({
   gap: '15px',
   flexDirection: 'row',
   padding: '12px',
-  margin: ' 14px',
+  margin: ' 7px',
   borderRadius: '14px',
   backgroundColor: '#FF3131',
 })
 
-export const Form = styled(TouchableOpacity)({
-  display: 'flex',
-  gap: '15px',
-  flexDirection: 'row',
-  padding: '12px',
-  margin: '14px',
-  borderRadius: '14px',
-  backgroundColor: '#FF3131',
-})
 
 export const CashClosingText = styled(Text)({
   color: '#fff',

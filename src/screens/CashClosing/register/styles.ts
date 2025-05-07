@@ -1,7 +1,7 @@
 import styled from "styled-components/native";
 import { TextInput, View } from "react-native"
 
-import { Heading, Text, Button } from "native-base"
+import { Heading, Text, Button, VStack, Select } from "native-base"
 
 export const Container = styled(View)({
   padding: '8px',
@@ -16,9 +16,17 @@ export const Input = styled(TextInput)({
   color: 'white',
 })
 
+export const Options = styled(Select)({
+  borderWidth: 1,
+  padding: '5px',
+  margin: '5px',
+  color: 'white',
+})
+
 export const Title = styled(Heading)({
   color: 'white',
-  marginTop: '20',
+  marginTop: '5',
+  fontSize: 'lg'
 })
 
 export const CashClosingText = styled(Text)({
@@ -31,6 +39,7 @@ export const Register = styled(Button)({
   height: '55px',
   borderRadius: '18px',
   color: '#fff',
+
   backgroundColor: '#FF3131',
 })
 

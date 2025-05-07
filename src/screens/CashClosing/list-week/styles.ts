@@ -1,11 +1,8 @@
 import styled from "styled-components/native";
-import { Text, VStack } from "native-base"
+import { View } from "react-native"
+import { Text } from "native-base"
 
-export const Container = styled(VStack)({
-  display: 'grid',
-})
-
-export const Form = styled(VStack)({
+export const Container = styled(View)({
   display: 'grid',
 })
 
