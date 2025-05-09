@@ -23,6 +23,11 @@ export const Options = styled(Select)({
   color: 'white',
 })
 
+export const Items = styled(Select.Item)({
+  backgroundColor: '#000',
+  color: 'white',
+})
+
 export const Title = styled(Heading)({
   color: 'white',
   marginTop: '5',

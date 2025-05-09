@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 
 export const Container = styled(TouchableOpacity)({
   display: 'flex',
-  gap: '15px',
+  gap: '10px',
   flexDirection: 'row',
   padding: '12px',
   margin: ' 7px',
