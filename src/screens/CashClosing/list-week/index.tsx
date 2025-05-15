@@ -2,10 +2,13 @@ import React from "react";
 import { useCallback, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
-import { ScrollView, Text, VStack } from "native-base";
+import { Text } from "native-base";
 
 import { Alert, SectionList } from "react-native";
-import { deleteCashClosing, fetchCashClosing } from "@dao/CashClosingDAO";
+import {
+  deleteCashClosing,
+  fetchCashClosings
+} from "@dao/CashClosingDAO";
 import { CashClosing } from "@dtos/CashClosing";
 import { CashClosingCard } from "@components/CashClosingCard";
 import { Loading } from "@components/Loading";
@@ -25,7 +28,7 @@ export function ListWeekCashClosing() {
           text: "OK",
           onPress: async () => {
             deleteCashClosing(id);
-            fetchCashClosings();
+            fetchAllCashClosings();
           },
         },
       ]);
@@ -37,11 +40,15 @@ export function ListWeekCashClosing() {
     }
   }
 
-  function fetchCashClosings() {
+  async function fetchAllCashClosings() {
     try {
       setIsLoading(true);
-      const results = fetchCashClosing();
-      setCashClosing([...results]);
+      const results = await fetchCashClosings();
+      if (Array.isArray(results)) {
+        setCashClosing([...(results as CashClosing[])]);
+      } else {
+        setCashClosing([]);
+      }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
     } finally {
@@ -51,21 +58,26 @@ export function ListWeekCashClosing() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchCashClosings();
+      fetchAllCashClosings();
     }, [])
   );
 
   return (
-      <Container>
-        {isLoading ? (
-          <Loading/>
-        ) : (
-          <SectionList
-            sections={[{ data: cashClosing }]}
-            ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
-            renderItem={({ item }) => <CashClosingCard item={item} onDelete={() => handleRemoveCashClosing(item.id)}/>}
-          />
-        )}
-      </Container>
+    <Container>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <SectionList
+          sections={[{ data: cashClosing }]}
+          ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
+          renderItem={({ item }) => (
+            <CashClosingCard
+              item={item}
+              onDelete={() => handleRemoveCashClosing(item.id)}
+            />
+          )}
+        />
+      )}
+    </Container>
   );
 }

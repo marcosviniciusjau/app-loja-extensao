@@ -2,13 +2,14 @@ import React from "react";
 import { useCallback, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
-import { fetchCashClosing } from "@dao/CashClosingDAO";
+import { fetchCashClosings } from "@dao/CashClosingDAO";
 import { ButtonIcon } from "../components/ButtonIcon";
 
 import { Container, Main, Sums, Title } from "./styles";
-import { ScrollView, Text } from "native-base";
+import { ScrollView } from "native-base";
 import { Loading } from "@components/Loading";
 import { Alert } from "react-native";
+import { CashClosing } from "@dtos/CashClosing";
 
 export function ListMonthCashClosing() {
   const [sumRevenues, setSumRevenues] = useState<number>(0);
@@ -16,10 +17,10 @@ export function ListMonthCashClosing() {
   const [sumPurchases, setSumPurchases] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const mainColor = "#FF3131";
-  function fetchSumCashClosings() {
+  async function fetchSumCashClosings() {
     try {
       setIsLoading(true);
-      const results = fetchCashClosing();
+      const results = (await fetchCashClosings()) as CashClosing[];
       const revenuesResults = results.filter((item) =>
         item.type.includes("Venda")
       );
@@ -67,7 +68,7 @@ export function ListMonthCashClosing() {
   return (
     <ScrollView>
       {isLoading ? (
-          <Loading/>
+        <Loading />
       ) : (
         <Main>
           <Container>

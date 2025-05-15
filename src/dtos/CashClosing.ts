@@ -1,7 +1,6 @@
-import { Float } from "react-native/Libraries/Types/CodegenTypes"
 export type CashClosing = {
-  id: string,
-  total: Float,
-  date: string,
+  id: number,
+  total: number,
+  createdAt: string,
   type: string
 }

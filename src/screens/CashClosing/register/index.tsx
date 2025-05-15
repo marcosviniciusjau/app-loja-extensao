@@ -3,12 +3,7 @@ import zod from "zod";
 import { useCallback, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-} from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -22,25 +17,30 @@ import {
 import {
   addCashClosing,
   deleteCashClosing,
+  fetchCashClosings,
   fetchCashClosingToday,
 } from "@dao/CashClosingDAO";
-import { CashClosing as CashClosingDTO } from "@dtos/CashClosing";
+import { CashClosing, CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 
 import { CashClosingCard } from "@components/CashClosingCard";
-import { Container, Input, Items, Options, Register } from "./styles";
-import { border } from "native-base/lib/typescript/theme/styled-system";
+import { Container, Input, Options, Register } from "./styles";
 
 const cashClosingBody = zod.object({
   total: zod.coerce.number().positive("Informe um valor positivo"),
-  type: zod.string().min(1, "Informe um tipo"),
+  type: zod
+    .string()
+    .min(1, "Informe um tipo")
+    .refine((val) => val === "outro" || val.length > 1, {
+      message: "Informe um tipo válido",
+    }),
 });
 
 export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function RegisterCashClosing() {
   const [cashClosings, setCashClosings] = useState<CashClosingDTO[]>([]);
-  const [selected, setSelected] = useState("");
   const [otherText, setOtherText] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const errorColor = "#FF3131";
   const [sum, setSum] = useState(0);
@@ -55,15 +55,26 @@ export function RegisterCashClosing() {
 
   async function registerCashClosing(data: CashClosingFormData) {
     try {
-      //@ts-ignore
       addCashClosing(data);
+      Alert.alert("Confirmação", "O fechamento foi registrado com sucesso", [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            fetchCashClosings();
+            reset({ total: 0 });
+            reset({ type: "" });
+          },
+        },
+      ]);
     } catch (error) {
       Alert.alert("Erro", "Nao foi possivel realizar o cadastro");
     }
-
-    reset({ type: "" });
-    fetchCashClosings();
   }
+
   async function handleRemoveCashClosing(id: string) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [
@@ -87,19 +98,26 @@ export function RegisterCashClosing() {
       );
     }
   }
-  function fetchCashClosings() {
-    const results = fetchCashClosingToday();
-    setCashClosings(Array.from(results));
-    const calculateSum = results.reduce((acc, item) => acc + item.total, 0);
-    setSum(calculateSum);
+  async function fetchAllCashClosings() {
+    try {
+      setIsLoading(true);
+      const results = await fetchCashClosings();
+      if (Array.isArray(results)) {
+        setCashClosings([...(results as CashClosing[])]);
+      } else {
+        setCashClosings([]);
+      }
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível listar as despesas");
+    } finally {
+      setIsLoading(false);
+    }
   }
-
   useFocusEffect(
     useCallback(() => {
-      fetchCashClosings();
+      fetchAllCashClosings();
     }, [])
   );
-
   return (
     <ScrollView>
       <KeyboardAvoidingView
@@ -170,21 +188,17 @@ export function RegisterCashClosing() {
                   <Select.Item label="Venda Débito" value="Venda Débito" />
                   <Select.Item label="Venda Crédito" value="Venda Crédito" />
                   <Select.Item label="Venda Dinheiro" value="Venda dinheiro" />
-                  <Select.Item label="Padaria" value="Padaria" />
-                  <Select.Item label="Marcos" value="Marcos" />
+                  <Select.Item label="Gasto Dinheiro" value="Gasto Dinheiro" />
+                  <Select.Item label="Gasto Cartão" value="Gasto Cartão" />
+                  <Select.Item label="Gasto Pix" value="Gasto Pix" />
                   <Select.Item label="Outro" value="outro" />
                 </Options>
+
                 {value === "outro" && (
-                  <Controller
-                    control={control}
-                    name="type"
-                    render={({ field: { onChange, value } }) => (
-                      <Input
-                        placeholder="Digite o tipo"
-                        value={value}
-                        onChangeText={onChange}
-                      />
-                    )}
+                  <Input
+                    placeholder="Selecione um tipo"
+                    value={otherText}
+                    onChangeText={setOtherText}
                   />
                 )}
               </VStack>
