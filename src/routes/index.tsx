@@ -13,7 +13,7 @@ export function Routes() {
   return (
     <Navigator>
       <Screen
-        name="Registrar"
+        name="Início"
         component={RegisterCashClosing}
         options={{
           tabBarActiveTintColor: "#fff",
@@ -25,7 +25,7 @@ export function Routes() {
         }}
       />
       <Screen
-        name="Relatório Semanal"
+        name="Semanal"
         component={ListWeekCashClosing}
         options={{
           tabBarActiveTintColor: "#fff",
@@ -37,7 +37,7 @@ export function Routes() {
         }}
       />
       <Screen
-        name="Relatório Mensal"
+        name="Mensal"
         component={ListMonthCashClosing}
         options={{
           tabBarActiveTintColor: "#fff",

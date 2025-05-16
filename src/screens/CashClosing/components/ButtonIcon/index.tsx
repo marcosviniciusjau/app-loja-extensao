@@ -11,7 +11,7 @@ type Props = TouchableOpacityProps & {
 export function ButtonIcon({ icon, onPress,color, ...rest }: Props) {
   return (
     <TouchableOpacity onPress={onPress} {...rest}>
-      <FontAwesome name={icon} size={30} color={color} />
+      <FontAwesome name={icon} size={25} color={color} />
   </TouchableOpacity>
   );
 }

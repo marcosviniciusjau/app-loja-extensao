@@ -18,8 +18,6 @@ export const Input = styled(TextInput)({
 
 export const Options = styled(Select)({
   borderWidth: 1,
-  padding: '5px',
-  margin: '5px',
   color: 'white',
 })
 

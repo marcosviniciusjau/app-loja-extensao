@@ -1,4 +1,3 @@
-// src/db/database.ts
 import SQLite from 'react-native-sqlite-storage';
 
 SQLite.enablePromise(true);
@@ -10,19 +9,17 @@ export async function getDbConnection() {
       location: 'default',
     });
 
-    // Cria a tabela se não existir (só na primeira vez)
     await db.executeSql(`
       CREATE TABLE IF NOT EXISTS CashClosing (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         total REAL,
         type TEXT,
-        createdAt TEXT DEFAULT (datetime('now', 'localtime'))
+        created_at TEXT DEFAULT (strftime('%d/%m/%Y', 'now', 'localtime'))
       )
     `);
 
     return db;
   } catch (error) {
-    console.error("Erro ao abrir ou criar banco:", error);
     throw new Error("Não foi possível abrir o banco de dados.");
   }
 }

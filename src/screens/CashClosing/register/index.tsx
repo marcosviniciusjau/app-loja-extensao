@@ -16,16 +16,14 @@ import {
 } from "native-base";
 import {
   addCashClosing,
-  deleteCashClosing,
-  fetchCashClosings,
-  fetchCashClosingToday,
+  deleteCashClosing, fetchCashClosingToday
 } from "@dao/CashClosingDAO";
 import { CashClosing, CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 
-import { CashClosingCard } from "@components/CashClosingCard";
 import { Container, Input, Options, Register } from "./styles";
+import { CashClosingCardHome } from "@components/CashClosingCardHome";
 
-const cashClosingBody = zod.object({
+export const cashClosingBody = zod.object({
   total: zod.coerce.number().positive("Informe um valor positivo"),
   type: zod
     .string()
@@ -40,7 +38,6 @@ export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 export function RegisterCashClosing() {
   const [cashClosings, setCashClosings] = useState<CashClosingDTO[]>([]);
   const [otherText, setOtherText] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
 
   const errorColor = "#FF3131";
   const [sum, setSum] = useState(0);
@@ -55,27 +52,18 @@ export function RegisterCashClosing() {
 
   async function registerCashClosing(data: CashClosingFormData) {
     try {
+      //@ts-ignore
       addCashClosing(data);
-      Alert.alert("Confirmação", "O fechamento foi registrado com sucesso", [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "OK",
-          onPress: async () => {
-            fetchCashClosings();
-            reset({ total: 0 });
-            reset({ type: "" });
-          },
-        },
-      ]);
+
+      fetchAllCashClosings();
+      reset({ total: 0 });
+      reset({ type: "" });
     } catch (error) {
       Alert.alert("Erro", "Nao foi possivel realizar o cadastro");
     }
   }
 
-  async function handleRemoveCashClosing(id: string) {
+  async function handleRemoveCashClosing(id: number) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [
         {
@@ -86,7 +74,7 @@ export function RegisterCashClosing() {
           text: "OK",
           onPress: async () => {
             deleteCashClosing(id);
-            fetchCashClosings();
+            fetchAllCashClosings();
             reset({ type: "" });
           },
         },
@@ -100,17 +88,18 @@ export function RegisterCashClosing() {
   }
   async function fetchAllCashClosings() {
     try {
-      setIsLoading(true);
-      const results = await fetchCashClosings();
+      const results = await fetchCashClosingToday();
       if (Array.isArray(results)) {
         setCashClosings([...(results as CashClosing[])]);
+        const total = results.reduce((acc, item) => {
+          return acc + Number(item.total);
+        }, 0);
+        setSum(total);
       } else {
         setCashClosings([]);
       }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
-    } finally {
-      setIsLoading(false);
     }
   }
   useFocusEffect(
@@ -178,16 +167,13 @@ export function RegisterCashClosing() {
                   }}
                 >
                   <Select.Item label="Compra Pix" value="Compra Pix" />
-                  <Select.Item label="Compra Débito" value="Compra Débito" />
-                  <Select.Item label="Compra Crédito" value="Compra Crédito" />
                   <Select.Item
                     label="Compra Dinheiro"
                     value="Compra Dinheiro"
                   />
                   <Select.Item label="Venda Pix" value="Venda Pix" />
-                  <Select.Item label="Venda Débito" value="Venda Débito" />
-                  <Select.Item label="Venda Crédito" value="Venda Crédito" />
-                  <Select.Item label="Venda Dinheiro" value="Venda dinheiro" />
+                  <Select.Item label="Venda Cartão" value="Venda Cartão" />
+                  <Select.Item label="Venda Dinheiro" value="Venda Dinheiro" />
                   <Select.Item label="Gasto Dinheiro" value="Gasto Dinheiro" />
                   <Select.Item label="Gasto Cartão" value="Gasto Cartão" />
                   <Select.Item label="Gasto Pix" value="Gasto Pix" />
@@ -204,7 +190,7 @@ export function RegisterCashClosing() {
               </VStack>
             )}
           />
-          {errors.type && <Text color={errorColor}>{"Digite um tipo"}</Text>}
+          {errors.type && <Text color={errorColor}>{"Selecione um tipo"}</Text>}
 
           <Register
             onPress={handleSubmit(registerCashClosing)}
@@ -212,16 +198,18 @@ export function RegisterCashClosing() {
           >
             <Heading color="white">Registrar</Heading>
           </Register>
+
           <SectionList
             sections={[{ title: "Fechamentos do dia", data: cashClosings }]}
             ListEmptyComponent={<Text>Nenhum fechamento cadastrado.</Text>}
             renderItem={({ item }) => (
-              <CashClosingCard
+              <CashClosingCardHome
                 item={item}
                 onDelete={() => handleRemoveCashClosing(item.id)}
               />
             )}
           />
+
           <Heading color="white" mt={10}>
             Total do dia:{" "}
             {sum.toLocaleString("pt-BR", {

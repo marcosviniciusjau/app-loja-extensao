@@ -5,46 +5,57 @@ import { AppError } from "src/error"
 const sqlDelete =
   'DELETE FROM CashClosing WHERE id=?';
 const sqlInsert =
-  'INSERT INTO CashClosing ( total, type )' +
+  'INSERT INTO CashClosing (total, type )' +
   ' VALUES (?,?)';
+const sqlUpdate = 'UPDATE CashClosing SET total = ?, type = ? WHERE id = ?';
 
 const sqlSelectAll = "SELECT * FROM CashClosing";
+const sqlSelectByToday = "SELECT * FROM CashClosing WHERE created_at = ?";
 
-const sqlSelectByToday = "SELECT * FROM CashClosing WHERE createdAt LIKE ?";
 export async function addCashClosing(cashClosing: CashClosing) {
   try {
     const db = await getDbConnection();
 
     await db.executeSql(
-      `INSERT INTO CashClosing (total, type,createdAt) VALUES (?, ?,?)`,
-      [cashClosing.total, cashClosing.type, '2025-05-16 16:34:48']
+      sqlInsert,
+      [cashClosing.total, cashClosing.type, cashClosing.id],
     );
 
-    console.log("Inserção bem-sucedida.");
   } catch (error) {
-    console.error("Erro ao inserir:", error);
+    throw new AppError("Erro ao salvar os dados.");
+  }
+}
+
+export async function updateCashClosing(cashClosing: CashClosing) {
+  try {
+    const db = await getDbConnection();
+    const acordou = await db.executeSql(
+      sqlUpdate,
+      [cashClosing.total, cashClosing.type, cashClosing.id],
+    );
+    console.log("acordou", acordou);
+  } catch (error) {
     throw new AppError("Erro ao salvar os dados.");
   }
 }
 
 export async function fetchCashClosingToday() {
-  const today = dayjs().format("YYYY-MM-DD");
-
+  const db = await getDbConnection();
+  const today = dayjs().format("DD/MM/YYYY");
   return new Promise((resolve, reject) => {
 
     db.transaction((txn) => {
-      txn.executeSql('SELECT * FROM CashClosing WHERE createdAt LIKE ?',
-        [`${today}%`],
-
-        (res) => {
+      txn.executeSql(
+        sqlSelectByToday,
+        [today],
+        (tx, res) => {
           const cashClosings = [];
           for (let i = 0; i < res.rows.length; i++) {
             cashClosings.push(res.rows.item(i));
           }
           resolve(cashClosings);
         },
-        (err) => {
-          console.error('Erro ao buscar os fechamentos:', err.message);
+        (tx, err) => {
           reject(err);
         }
       );
@@ -64,10 +75,10 @@ export async function fetchCashClosings() {
           for (let i = 0; i < res.rows.length; i++) {
             cashClosings.push(res.rows.item(i));
           }
+          console.log("CashClosings", cashClosings);
           resolve(cashClosings);
         },
         (tx, err) => {
-          console.error('Erro ao buscar os fechamentos:', err.message);
           reject(err);
         }
       );
@@ -75,24 +86,14 @@ export async function fetchCashClosings() {
   });
 }
 
-export async function deleteCashClosing(id: string) {
+export async function deleteCashClosing(id: number) {
   try {
     const db = await getDbConnection();
-    const numericId = parseInt(id, 10);
-
-    console.log("ID a ser excluído:", numericId);
 
     db.transaction(txn => {
       txn.executeSql(
         sqlDelete,
-        [numericId],
-        (_, result) => {
-          console.log("Fechamento removido com sucesso:", result);
-        },
-        (_, error) => {
-          console.error("Erro ao remover fechamento:", error);
-          return true; // indica que o erro foi tratado
-        }
+        [id],
       );
     });
 

@@ -1,6 +1,6 @@
 export type CashClosing = {
   id: number,
   total: number,
-  createdAt: string,
+  created_at: string,
   type: string
 }

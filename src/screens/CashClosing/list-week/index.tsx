@@ -5,19 +5,14 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Text } from "native-base";
 
 import { Alert, SectionList } from "react-native";
-import {
-  deleteCashClosing,
-  fetchCashClosings
-} from "@dao/CashClosingDAO";
+import { deleteCashClosing, fetchCashClosings } from "@dao/CashClosingDAO";
 import { CashClosing } from "@dtos/CashClosing";
 import { CashClosingCard } from "@components/CashClosingCard";
 import { Loading } from "@components/Loading";
 import { Container } from "./styles";
 export function ListWeekCashClosing() {
   const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  async function handleRemoveCashClosing(id: string) {
+  async function handleRemoveCashClosing(id: number) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [
         {
@@ -42,7 +37,6 @@ export function ListWeekCashClosing() {
 
   async function fetchAllCashClosings() {
     try {
-      setIsLoading(true);
       const results = await fetchCashClosings();
       if (Array.isArray(results)) {
         setCashClosing([...(results as CashClosing[])]);
@@ -51,8 +45,6 @@ export function ListWeekCashClosing() {
       }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -64,20 +56,17 @@ export function ListWeekCashClosing() {
 
   return (
     <Container>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <SectionList
-          sections={[{ data: cashClosing }]}
-          ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
-          renderItem={({ item }) => (
-            <CashClosingCard
-              item={item}
-              onDelete={() => handleRemoveCashClosing(item.id)}
-            />
-          )}
-        />
-      )}
+      <SectionList
+        sections={[{ data: cashClosing }]}
+        ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
+        renderItem={({ item }) => (
+          <CashClosingCard
+            item={item}
+            onDelete={() => handleRemoveCashClosing(item.id)}
+            onUpdate={fetchAllCashClosings}
+          />
+        )}
+      />
     </Container>
   );
 }
