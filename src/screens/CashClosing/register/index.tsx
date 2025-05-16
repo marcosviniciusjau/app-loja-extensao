@@ -16,7 +16,8 @@ import {
 } from "native-base";
 import {
   addCashClosing,
-  deleteCashClosing, fetchCashClosingToday
+  deleteCashClosing,
+  fetchCashClosingToday,
 } from "@dao/CashClosingDAO";
 import { CashClosing, CashClosing as CashClosingDTO } from "@dtos/CashClosing";
 
@@ -38,7 +39,6 @@ export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 export function RegisterCashClosing() {
   const [cashClosings, setCashClosings] = useState<CashClosingDTO[]>([]);
   const [otherText, setOtherText] = useState("");
-
   const errorColor = "#FF3131";
   const [sum, setSum] = useState(0);
   const {
@@ -52,14 +52,14 @@ export function RegisterCashClosing() {
 
   async function registerCashClosing(data: CashClosingFormData) {
     try {
-      //@ts-ignore
-      addCashClosing(data);
+      const tipo = data.type === "outro" ? otherText : data.type;
+      addCashClosing({ ...data, type: tipo });
 
       fetchAllCashClosings();
       reset({ total: 0 });
       reset({ type: "" });
     } catch (error) {
-      Alert.alert("Erro", "Nao foi possivel realizar o cadastro");
+      Alert.alert("Erro", "Nao foi possível realizar o cadastro");
     }
   }
 

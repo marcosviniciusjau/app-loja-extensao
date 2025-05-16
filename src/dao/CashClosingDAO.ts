@@ -9,7 +9,7 @@ const sqlInsert =
   ' VALUES (?,?)';
 const sqlUpdate = 'UPDATE CashClosing SET total = ?, type = ? WHERE id = ?';
 
-const sqlSelectAll = "SELECT * FROM CashClosing";
+const sqlSelectAll = "SELECT * FROM CashClosing ORDER BY created_at DESC";
 const sqlSelectByToday = "SELECT * FROM CashClosing WHERE created_at = ?";
 
 export async function addCashClosing(cashClosing: CashClosing) {
@@ -18,7 +18,7 @@ export async function addCashClosing(cashClosing: CashClosing) {
 
     await db.executeSql(
       sqlInsert,
-      [cashClosing.total, cashClosing.type, cashClosing.id],
+      [cashClosing.total, cashClosing.type],
     );
 
   } catch (error) {

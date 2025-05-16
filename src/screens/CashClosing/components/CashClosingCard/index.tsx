@@ -28,12 +28,7 @@ type Props = TouchableOpacityProps & {
 
 const cashClosingBody = zod.object({
   total: zod.coerce.number().positive("Informe um valor positivo"),
-  type: zod
-    .string()
-    .min(1, "Informe um tipo")
-    .refine((val) => val === "outro" || val.length > 1, {
-      message: "Informe um tipo válido",
-    }),
+  type: zod.string().optional(),
 });
 
 type CashClosingFormData = zod.infer<typeof cashClosingBody>;
@@ -47,18 +42,25 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
     formState: { errors, isSubmitting },
     reset,
   } = useForm<CashClosingFormData>({
+    defaultValues: { type: item.type || "" },
     resolver: zodResolver(cashClosingBody),
   });
 
   const [otherText, setOtherText] = useState("");
   async function handleUpdate(data: CashClosingFormData) {
     try {
+      const finalType =
+        (data.type === "outro" ? otherText : data.type) || item.type;
+
       const payload = {
-        ...data,
+        type: finalType,
+        total: item.total + data.total,
         id: item.id,
       };
       //@ts-ignore
       updateCashClosing(payload);
+      reset({ total: 0 });
+      reset({ type: "burro" });
       fetchCashClosings();
       setIsEditing(false);
       onUpdate();
@@ -83,7 +85,7 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
               render={({ field: { onChange, value } }) => (
                 <Input
                   width={"40%"}
-                  height={"40%"}
+                  height={"32%"}
                   backgroundColor={"#000"}
                   color={"#fff"}
                   borderColor={errorColor}
@@ -155,7 +157,10 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
 
                   {value === "outro" && (
                     <Input
-                      placeholder="Selecione um tipo"
+                    marginTop={3}
+                      color="white"
+                      width={"205%"}
+                      backgroundColor={"#000"}
                       value={otherText}
                       onChangeText={setOtherText}
                     />
@@ -170,7 +175,7 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
               flex={1}
               flexDirection="row"
               style={{ gap: 3 }}
-              marginTop={70}
+              marginTop={110}
               marginLeft={-20}
             >
               <Button
@@ -179,7 +184,7 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
                 backgroundColor="#00875F"
               >
                 <Heading color="white" size={"sm"}>
-                  Registrar
+                  Atualizar
                 </Heading>
               </Button>
               <Button
