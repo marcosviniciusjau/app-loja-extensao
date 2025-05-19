@@ -1,12 +1,13 @@
 import { Alert, TouchableOpacityProps } from "react-native";
 import { Container, CashClosingText, ContainerUpdate } from "./styles";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { CashClosing } from "@dtos/CashClosing";
 import { ButtonIcon } from "@components/ButtonIcon";
 import {
   Button,
   Heading,
   Input,
+  ScrollView,
   Select,
   Text,
   View,
@@ -17,11 +18,17 @@ import zod from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Options } from "@screens/CashClosing/register/styles";
-import { fetchCashClosings, updateCashClosing } from "@dao/CashClosingDAO";
-import { useFocusEffect } from "@react-navigation/native";
+import {
+  fetchCashClosingsMonth,
+  fetchCashClosingsWeek,
+  updateCashClosing,
+} from "@dao/CashClosingDAO";
+import dayjs from "dayjs";
 
 type Props = TouchableOpacityProps & {
   onDelete: () => void;
+  isWeek: boolean;
+  isMonth: boolean;
   onUpdate: () => void;
   item: CashClosing;
 };
@@ -33,7 +40,14 @@ const cashClosingBody = zod.object({
 
 type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
-export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
+export function CashClosingCard({
+  item,
+  isMonth,
+  isWeek,
+  onUpdate,
+  onDelete,
+  ...rest
+}: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const errorColor = "#FF3131";
   const {
@@ -51,21 +65,23 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
     try {
       const finalType =
         (data.type === "outro" ? otherText : data.type) || item.type;
-
+      const finalTotal =
+        finalType !== item.type ? data.total : item.total + data.total;
       const payload = {
         type: finalType,
-        total: item.total + data.total,
+        total: finalTotal,
         id: item.id,
       };
       //@ts-ignore
       updateCashClosing(payload);
       reset({ total: 0 });
-      reset({ type: "burro" });
-      fetchCashClosings();
+      reset({ type: "" });
+      setOtherText("");
+      isMonth && fetchCashClosingsMonth();
+      isWeek && fetchCashClosingsWeek();
       setIsEditing(false);
       onUpdate();
     } catch (error) {
-      console.log("Erro ao atualizar:", error);
       Alert.alert(
         "Erro ao atualizar o fechamento de caixa",
         "Não foi possível atualizar o fechamento de caixa."
@@ -74,10 +90,12 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
   }
 
   return (
-    <>
+    <ScrollView>
       {isEditing ? (
         <ContainerUpdate {...rest}>
-          <CashClosingText>{item.created_at}</CashClosingText>
+          <CashClosingText>
+            {dayjs(item.created_at).format("DD/MM")}
+          </CashClosingText>
           <View flex={1} flexDirection="row" style={{ gap: 3 }}>
             <Controller
               control={control}
@@ -91,16 +109,12 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
                   borderColor={errorColor}
                   placeholder="0.0"
                   keyboardType="decimal-pad"
-                  value={value ?? ""}
+                  //@ts-ignore
+                  value={value}
                   onChangeText={onChange}
                 />
               )}
             />
-            {errors.total && (
-              <CashClosingText color={errorColor}>
-                {"Informe um valor positivo"}
-              </CashClosingText>
-            )}
             <Controller
               control={control}
               name="type"
@@ -157,7 +171,7 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
 
                   {value === "outro" && (
                     <Input
-                    marginTop={3}
+                      marginTop={3}
                       color="white"
                       width={"205%"}
                       backgroundColor={"#000"}
@@ -168,9 +182,6 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
                 </VStack>
               )}
             />
-            {errors.type && (
-              <Text color={errorColor}>{"Selecione um tipo"}</Text>
-            )}
             <View
               flex={1}
               flexDirection="row"
@@ -203,12 +214,13 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
         </ContainerUpdate>
       ) : (
         <Container {...rest}>
-          <CashClosingText>{item.created_at}</CashClosingText>
           <CashClosingText>
-            {" "}
+            {dayjs(item.created_at).format("DD/MM")}
+          </CashClosingText>
+          <CashClosingText>
             {new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
+              style: "decimal",
+              minimumFractionDigits: 2,
             }).format(item.total)}
           </CashClosingText>
 
@@ -221,6 +233,6 @@ export function CashClosingCard({ item, onUpdate, onDelete, ...rest }: Props) {
           <ButtonIcon icon="trash" color={"#fff"} onPress={onDelete} />
         </Container>
       )}
-    </>
+    </ScrollView>
   );
 }

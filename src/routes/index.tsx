@@ -3,8 +3,9 @@ import { FontAwesome } from "@expo/vector-icons";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RegisterCashClosing } from "@screens/CashClosing/register";
-import { ListWeekCashClosing } from "@screens/CashClosing/list-week";
-import { ListMonthCashClosing } from "@screens/CashClosing/list-month";
+import { ListWeek } from "@screens/CashClosing/list-week";
+import { ListMonth } from "@screens/CashClosing/list-month";
+import { Sum } from "@screens/CashClosing/sum";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function Routes() {
@@ -26,7 +27,19 @@ export function Routes() {
       />
       <Screen
         name="Semanal"
-        component={ListWeekCashClosing}
+        component={ListWeek}
+        options={{
+          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: "#fff",
+          tabBarLabelStyle: { fontSize: 15 },
+          tabBarIcon: () => (
+            <FontAwesome name="calendar" size={iconSize} color={mainColor} />
+          ),
+        }}
+      />
+       <Screen
+        name="Mensal"
+        component={ListMonth}
         options={{
           tabBarActiveTintColor: "#fff",
           tabBarInactiveTintColor: "#fff",
@@ -37,8 +50,8 @@ export function Routes() {
         }}
       />
       <Screen
-        name="Mensal"
-        component={ListMonthCashClosing}
+        name="Total"
+        component={Sum}
         options={{
           tabBarActiveTintColor: "#fff",
           tabBarInactiveTintColor: "#fff",

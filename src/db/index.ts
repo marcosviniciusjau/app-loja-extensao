@@ -8,14 +8,13 @@ export async function getDbConnection() {
       name: 'CashClosing.db',
       location: 'default',
     });
-
     await db.executeSql(`
       CREATE TABLE IF NOT EXISTS CashClosing (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         total REAL,
-        type TEXT,
-        created_at TEXT DEFAULT (strftime('%d/%m/%Y', 'now', 'localtime'))
-      )
+        type TEXT,       
+       created_at TEXT DEFAULT (datetime('now', 'localtime'))
+ )
     `);
 
     return db;

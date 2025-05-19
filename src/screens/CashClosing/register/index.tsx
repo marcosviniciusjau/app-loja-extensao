@@ -13,16 +13,18 @@ import {
   SectionList,
   Select,
   VStack,
+  Center,
 } from "native-base";
 import {
   addCashClosing,
   deleteCashClosing,
-  fetchCashClosingToday,
+  fetchCashClosingsToday,
 } from "@dao/CashClosingDAO";
-import { CashClosing, CashClosing as CashClosingDTO } from "@dtos/CashClosing";
+import { CashClosing } from "@dtos/CashClosing";
 
 import { Container, Input, Options, Register } from "./styles";
-import { CashClosingCardHome } from "@components/CashClosingCardHome";
+import { CashClosingCard } from "@components/CashClosingCard";
+import dayjs from "dayjs";
 
 export const cashClosingBody = zod.object({
   total: zod.coerce.number().positive("Informe um valor positivo"),
@@ -37,7 +39,7 @@ export const cashClosingBody = zod.object({
 export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function RegisterCashClosing() {
-  const [cashClosings, setCashClosings] = useState<CashClosingDTO[]>([]);
+  const [cashClosings, setCashClosings] = useState<CashClosing[]>([]);
   const [otherText, setOtherText] = useState("");
   const errorColor = "#FF3131";
   const [sum, setSum] = useState(0);
@@ -53,11 +55,12 @@ export function RegisterCashClosing() {
   async function registerCashClosing(data: CashClosingFormData) {
     try {
       const tipo = data.type === "outro" ? otherText : data.type;
+      //@ts-ignore
       addCashClosing({ ...data, type: tipo });
-
       fetchAllCashClosings();
       reset({ total: 0 });
       reset({ type: "" });
+      setOtherText("");
     } catch (error) {
       Alert.alert("Erro", "Nao foi possível realizar o cadastro");
     }
@@ -88,7 +91,7 @@ export function RegisterCashClosing() {
   }
   async function fetchAllCashClosings() {
     try {
-      const results = await fetchCashClosingToday();
+      const results = await fetchCashClosingsToday();
       if (Array.isArray(results)) {
         setCashClosings([...(results as CashClosing[])]);
         const total = results.reduce((acc, item) => {
@@ -130,6 +133,7 @@ export function RegisterCashClosing() {
             )}
           />
           {errors.total && <Text color={errorColor}>{"Digite um número"}</Text>}
+
           <Heading color="white" mt={5} fontSize={"lg"}>
             Tipo
           </Heading>
@@ -198,20 +202,27 @@ export function RegisterCashClosing() {
           >
             <Heading color="white">Registrar</Heading>
           </Register>
+          <Center>
+            <Heading color="white" mb={2} mt={2}>
+              Exercício / Ano {dayjs().get("year")}
+            </Heading>
+          </Center>
 
           <SectionList
             sections={[{ title: "Fechamentos do dia", data: cashClosings }]}
             ListEmptyComponent={<Text>Nenhum fechamento cadastrado.</Text>}
             renderItem={({ item }) => (
-              <CashClosingCardHome
+              <CashClosingCard
+                isWeek={false}
+                isMonth={false}
+                onUpdate={fetchAllCashClosings}
                 item={item}
                 onDelete={() => handleRemoveCashClosing(item.id)}
               />
             )}
           />
-
-          <Heading color="white" mt={10}>
-            Total do dia:{" "}
+          <Heading color="white" mb={5} mt={5}>
+            Total do Dia:{" "}
             {sum.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",

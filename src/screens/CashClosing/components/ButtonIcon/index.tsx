@@ -1,4 +1,3 @@
-import { Container, Icon, Text } from "native-base";
 import React from "react";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 
@@ -8,10 +7,13 @@ type Props = TouchableOpacityProps & {
   color: string;
 };
 
-export function ButtonIcon({ icon, onPress,color, ...rest }: Props) {
+export function ButtonIcon({ icon, onPress, color, ...rest }: Props) {
   return (
-    <TouchableOpacity onPress={onPress} {...rest}>
+    <TouchableOpacity
+      onPress={onPress}
+      {...rest}
+    >
       <FontAwesome name={icon} size={25} color={color} />
-  </TouchableOpacity>
+    </TouchableOpacity>
   );
 }

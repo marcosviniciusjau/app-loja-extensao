@@ -4,6 +4,7 @@ import { Text } from "native-base"
 
 export const Container = styled(View)({
   display: 'grid',
+  padding: 10,
 })
 
 export const Label = styled(Text)

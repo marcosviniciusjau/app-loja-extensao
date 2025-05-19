@@ -5,22 +5,24 @@ import { AppError } from "src/error"
 const sqlDelete =
   'DELETE FROM CashClosing WHERE id=?';
 const sqlInsert =
-  'INSERT INTO CashClosing (total, type )' +
+  'INSERT INTO CashClosing (total, type)' +
   ' VALUES (?,?)';
 const sqlUpdate = 'UPDATE CashClosing SET total = ?, type = ? WHERE id = ?';
+const startDay = dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss");
+const endDay = dayjs().endOf("day").format("YYYY-MM-DD HH:mm:ss");
+const startWeek = dayjs().startOf("week").format("YYYY-MM-DD HH:mm:ss");
+const endWeek = dayjs().endOf("week").format("YYYY-MM-DD HH:mm:ss");
+const startMonth = dayjs().startOf("month").format("YYYY-MM-DD HH:mm:ss");
+const endMonth = dayjs().endOf("month").format("YYYY-MM-DD HH:mm:ss");
 
-const sqlSelectAll = "SELECT * FROM CashClosing ORDER BY created_at DESC";
-const sqlSelectByToday = "SELECT * FROM CashClosing WHERE created_at = ?";
-
+const sqlSelect = "SELECT * FROM CashClosing WHERE created_at BETWEEN ? AND ? ORDER BY created_at DESC";
 export async function addCashClosing(cashClosing: CashClosing) {
   try {
     const db = await getDbConnection();
-
-    await db.executeSql(
+    const inseriu = await db.executeSql(
       sqlInsert,
       [cashClosing.total, cashClosing.type],
     );
-
   } catch (error) {
     throw new AppError("Erro ao salvar os dados.");
   }
@@ -29,56 +31,30 @@ export async function addCashClosing(cashClosing: CashClosing) {
 export async function updateCashClosing(cashClosing: CashClosing) {
   try {
     const db = await getDbConnection();
-    const acordou = await db.executeSql(
+    await db.executeSql(
       sqlUpdate,
       [cashClosing.total, cashClosing.type, cashClosing.id],
     );
-    console.log("acordou", acordou);
   } catch (error) {
-    throw new AppError("Erro ao salvar os dados.");
+    throw new AppError("Erro ao atualizar os dados.");
   }
 }
 
-export async function fetchCashClosingToday() {
+export async function fetchCashClosingsToday() {
   const db = await getDbConnection();
-  const today = dayjs().format("DD/MM/YYYY");
   return new Promise((resolve, reject) => {
-
     db.transaction((txn) => {
       txn.executeSql(
-        sqlSelectByToday,
-        [today],
-        (tx, res) => {
+        sqlSelect,
+        [startDay, endDay],
+        (_tx, res) => {
           const cashClosings = [];
           for (let i = 0; i < res.rows.length; i++) {
             cashClosings.push(res.rows.item(i));
           }
           resolve(cashClosings);
         },
-        (tx, err) => {
-          reject(err);
-        }
-      );
-    });
-  });
-}
-export async function fetchCashClosings() {
-  const db = await getDbConnection();
-  return new Promise((resolve, reject) => {
-
-    db.transaction((txn) => {
-      txn.executeSql(
-        sqlSelectAll,
-        [],
-        (tx, res) => {
-          const cashClosings = [];
-          for (let i = 0; i < res.rows.length; i++) {
-            cashClosings.push(res.rows.item(i));
-          }
-          console.log("CashClosings", cashClosings);
-          resolve(cashClosings);
-        },
-        (tx, err) => {
+        (err) => {
           reject(err);
         }
       );
@@ -86,10 +62,55 @@ export async function fetchCashClosings() {
   });
 }
 
+export async function fetchCashClosingsWeek() {
+  const db = await getDbConnection();
+
+  return new Promise((resolve, reject) => {
+
+    db.transaction((txn) => {
+      txn.executeSql(
+        sqlSelect,
+        [startWeek, endWeek],
+        (_tx, res) => {
+          const cashClosings = [];
+          for (let i = 0; i < res.rows.length; i++) {
+            cashClosings.push(res.rows.item(i));
+          }
+          resolve(cashClosings);
+        },
+        (err) => {
+          reject(err);
+        }
+      );
+    });
+  });
+}
+
+export async function fetchCashClosingsMonth() {
+  const db = await getDbConnection();
+  return new Promise((resolve, reject) => {
+
+    db.transaction((txn) => {
+      txn.executeSql(
+        sqlSelect,
+        [startMonth, endMonth],
+        (_tx, res) => {
+          const cashClosings = [];
+          for (let i = 0; i < res.rows.length; i++) {
+            cashClosings.push(res.rows.item(i));
+          }
+          resolve(cashClosings);
+        },
+        (err) => {
+          reject(err);
+        }
+      );
+    });
+  });
+}
 export async function deleteCashClosing(id: number) {
   try {
     const db = await getDbConnection();
-
     db.transaction(txn => {
       txn.executeSql(
         sqlDelete,
@@ -98,6 +119,6 @@ export async function deleteCashClosing(id: number) {
     });
 
   } catch (error) {
-    throw new AppError('Ocorreu um erro ao excluir a despesa')
+    throw new AppError('Ocorreu um erro ao excluir o fechamento')
   }
 }

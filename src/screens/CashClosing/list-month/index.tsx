@@ -2,53 +2,47 @@ import React from "react";
 import { useCallback, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
-import { fetchCashClosings } from "@dao/CashClosingDAO";
-import { ButtonIcon } from "../components/ButtonIcon";
+import { Text } from "native-base";
 
-import { Container, Main, Sums, Title } from "./styles";
-import { ScrollView } from "native-base";
-import { Alert } from "react-native";
+import { Alert, SectionList } from "react-native";
+import { deleteCashClosing, fetchCashClosingsMonth } from "@dao/CashClosingDAO";
 import { CashClosing } from "@dtos/CashClosing";
+import { CashClosingCard } from "@components/CashClosingCard";
+import { Container } from "./styles";
 
-export function ListMonthCashClosing() {
-  const [sumRevenues, setSumRevenues] = useState<number>(0);
-  const [sumExpenses, setSumExpenses] = useState<number>(0);
-  const [sumPurchases, setSumPurchases] = useState<number>(0);
-  const mainColor = "#FF3131";
-  async function fetchSumCashClosings() {
+export function ListMonth() {
+  const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
+  async function handleRemoveCashClosing(id: number) {
     try {
-      const results = (await fetchCashClosings()) as CashClosing[];
-      const revenuesResults = results.filter((item) =>
-        item.type.includes("Venda")
+      Alert.alert("Confirmação", "Deseja realmente excluir?", [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            deleteCashClosing(id);
+            fetchAllCashClosings();
+          },
+        },
+      ]);
+    } catch (error) {
+      Alert.alert(
+        "Remover fechamento",
+        "Não foi possível remover esse fechamento."
       );
-      const revenuesTypes = revenuesResults.map((item) => item.type);
+    }
+  }
 
-      const purchasesResults = results.filter((item) =>
-        item.type.includes("Compra")
-      );
-      const purchasesTypes = purchasesResults.map((item) => item.type);
-
-      const expensesResults = results.filter(
-        (item) =>
-          !revenuesTypes.includes(item.type) &&
-          !purchasesTypes.includes(item.type)
-      );
-
-      const purchasesSum = purchasesResults.reduce(
-        (acc, item) => acc + item.total,
-        0
-      );
-      setSumPurchases(purchasesSum);
-      const revenuesSum = revenuesResults.reduce(
-        (acc, item) => acc + item.total,
-        0
-      );
-      setSumRevenues(revenuesSum);
-      const expensesSum = expensesResults.reduce(
-        (acc, item) => acc + item.total,
-        0
-      );
-      setSumExpenses(expensesSum);
+  async function fetchAllCashClosings() {
+    try {
+      const results = await fetchCashClosingsMonth();
+      if (Array.isArray(results)) {
+        setCashClosing([...(results as CashClosing[])]);
+      } else {
+        setCashClosing([]);
+      }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
     }
@@ -56,44 +50,25 @@ export function ListMonthCashClosing() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchSumCashClosings();
+      fetchAllCashClosings();
     }, [])
   );
 
   return (
-    <ScrollView>
-      <Main>
-        <Container>
-          <ButtonIcon icon="money" color={mainColor} />
-          <Title>Receitas</Title>
-          <Sums>
-            {sumRevenues.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }) || 0}
-          </Sums>
-        </Container>
-        <Container>
-          <ButtonIcon icon="credit-card" color={mainColor} />
-          <Title>Gastos</Title>
-          <Sums>
-            {sumExpenses.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }) || 0}
-          </Sums>
-        </Container>
-        <Container>
-          <ButtonIcon icon="shopping-bag" color={mainColor} />
-          <Title>Compras</Title>
-          <Sums>
-            {sumPurchases.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }) || 0}
-          </Sums>
-        </Container>
-      </Main>
-    </ScrollView>
+    <Container>
+      <SectionList
+        sections={[{ data: cashClosing }]}
+        ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
+        renderItem={({ item }) => (
+          <CashClosingCard
+            isMonth
+            isWeek={false}
+            item={item}
+            onDelete={() => handleRemoveCashClosing(item.id)}
+            onUpdate={fetchAllCashClosings}
+          />
+        )}
+      />
+    </Container>
   );
 }

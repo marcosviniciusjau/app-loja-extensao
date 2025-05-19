@@ -2,12 +2,11 @@ import { TouchableOpacity, Text } from "react-native"
 import styled from "styled-components/native";
 
 export const Container = styled(TouchableOpacity)({
-  width: '100%',
   display: 'flex',
-  gap: '6px',
+  gap: '8px',
   flexDirection: 'row',
-  padding: '12px',
-  margin: '7px',
+  padding: '14px',
+  margin: '5px',
   borderRadius: '14px',
   backgroundColor: '#FF3131',
 })

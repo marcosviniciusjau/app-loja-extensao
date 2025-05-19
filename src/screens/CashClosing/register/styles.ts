@@ -43,6 +43,6 @@ export const Register = styled(Button)({
   borderRadius: '18px',
   color: '#fff',
 
-  backgroundColor: '#FF3131',
+  backgroundColor: '#0b5cff',
 })
 

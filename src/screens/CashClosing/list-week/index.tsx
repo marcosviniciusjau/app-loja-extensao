@@ -5,12 +5,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Text } from "native-base";
 
 import { Alert, SectionList } from "react-native";
-import { deleteCashClosing, fetchCashClosings } from "@dao/CashClosingDAO";
+import { deleteCashClosing, fetchCashClosingsWeek } from "@dao/CashClosingDAO";
 import { CashClosing } from "@dtos/CashClosing";
 import { CashClosingCard } from "@components/CashClosingCard";
-import { Loading } from "@components/Loading";
 import { Container } from "./styles";
-export function ListWeekCashClosing() {
+
+export function ListWeek() {
   const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
   async function handleRemoveCashClosing(id: number) {
     try {
@@ -37,7 +37,7 @@ export function ListWeekCashClosing() {
 
   async function fetchAllCashClosings() {
     try {
-      const results = await fetchCashClosings();
+      const results = await fetchCashClosingsWeek();
       if (Array.isArray(results)) {
         setCashClosing([...(results as CashClosing[])]);
       } else {
@@ -61,6 +61,8 @@ export function ListWeekCashClosing() {
         ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
         renderItem={({ item }) => (
           <CashClosingCard
+            isWeek
+            isMonth={false}
             item={item}
             onDelete={() => handleRemoveCashClosing(item.id)}
             onUpdate={fetchAllCashClosings}
