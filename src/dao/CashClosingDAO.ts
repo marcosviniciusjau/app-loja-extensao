@@ -1,25 +1,36 @@
 import { getDbConnection } from "@db/index"
-import { CashClosing } from "@dtos/CashClosing"
+import { CashClosingFormData } from "@screens/CashClosing/register";
 import dayjs from "dayjs"
 import { AppError } from "src/error"
+
 const sqlDelete =
-  'DELETE FROM CashClosing WHERE id=?';
+  'DELETE FROM cash_closings WHERE id=?';
+
 const sqlInsert =
-  'INSERT INTO CashClosing (total, type)' +
+  'INSERT INTO cash_closings (total, type)' +
   ' VALUES (?,?)';
-const sqlUpdate = 'UPDATE CashClosing SET total = ?, type = ? WHERE id = ?';
+
+const sqlUpdate = 'UPDATE cash_closings SET total = ?, type = ? WHERE id = ?';
+
 const startDay = dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss");
 const endDay = dayjs().endOf("day").format("YYYY-MM-DD HH:mm:ss");
+
 const startWeek = dayjs().startOf("week").format("YYYY-MM-DD HH:mm:ss");
 const endWeek = dayjs().endOf("week").format("YYYY-MM-DD HH:mm:ss");
-const startMonth = dayjs().startOf("month").format("YYYY-MM-DD HH:mm:ss");
-const endMonth = dayjs().endOf("month").format("YYYY-MM-DD HH:mm:ss");
 
-const sqlSelect = "SELECT * FROM CashClosing WHERE created_at BETWEEN ? AND ? ORDER BY created_at DESC";
-export async function addCashClosing(cashClosing: CashClosing) {
+const sqlSelect = "SELECT * FROM cash_closings WHERE created_at BETWEEN ? AND ? ORDER BY created_at ASC";
+
+const sqlSelectAll = "SELECT * FROM cash_closings ORDER BY created_at ASC";
+
+type CashClosingSelected = {
+  id: number;
+  total: number;
+  type: string;
+}
+export async function addCashClosing(cashClosing: CashClosingFormData) {
   try {
     const db = await getDbConnection();
-    const inseriu = await db.executeSql(
+    await db.executeSql(
       sqlInsert,
       [cashClosing.total, cashClosing.type],
     );
@@ -28,9 +39,10 @@ export async function addCashClosing(cashClosing: CashClosing) {
   }
 }
 
-export async function updateCashClosing(cashClosing: CashClosing) {
+export async function updateCashClosing(cashClosing: CashClosingSelected) {
   try {
     const db = await getDbConnection();
+
     await db.executeSql(
       sqlUpdate,
       [cashClosing.total, cashClosing.type, cashClosing.id],
@@ -42,6 +54,7 @@ export async function updateCashClosing(cashClosing: CashClosing) {
 
 export async function fetchCashClosingsToday() {
   const db = await getDbConnection();
+
   return new Promise((resolve, reject) => {
     db.transaction((txn) => {
       txn.executeSql(
@@ -62,11 +75,33 @@ export async function fetchCashClosingsToday() {
   });
 }
 
+export async function fetchAllCashClosings() {
+  const db = await getDbConnection();
+
+  return new Promise((resolve, reject) => {
+    db.transaction((txn) => {
+      txn.executeSql(
+        sqlSelectAll,
+        [],
+        (_tx, res) => {
+          const cashClosings = [];
+          for (let i = 0; i < res.rows.length; i++) {
+            cashClosings.push(res.rows.item(i));
+          }
+          resolve(cashClosings);
+        },
+        (err) => {
+          reject(err);
+        }
+      );
+    });
+  });
+}
+
 export async function fetchCashClosingsWeek() {
   const db = await getDbConnection();
 
   return new Promise((resolve, reject) => {
-
     db.transaction((txn) => {
       txn.executeSql(
         sqlSelect,
@@ -86,14 +121,16 @@ export async function fetchCashClosingsWeek() {
   });
 }
 
-export async function fetchCashClosingsMonth() {
+export async function fetchCashClosingsSelectedMonth(selectedMonth: number) {
+  const startSelectedMonth = dayjs().month(selectedMonth).startOf("month").format("YYYY-MM-DD HH:mm:ss");
+  const endSelectedMonth = dayjs().month(selectedMonth).endOf("month").format("YYYY-MM-DD HH:mm:ss");
   const db = await getDbConnection();
-  return new Promise((resolve, reject) => {
 
+  return new Promise((resolve, reject) => {
     db.transaction((txn) => {
       txn.executeSql(
         sqlSelect,
-        [startMonth, endMonth],
+        [startSelectedMonth, endSelectedMonth],
         (_tx, res) => {
           const cashClosings = [];
           for (let i = 0; i < res.rows.length; i++) {
@@ -108,6 +145,7 @@ export async function fetchCashClosingsMonth() {
     });
   });
 }
+
 export async function deleteCashClosing(id: number) {
   try {
     const db = await getDbConnection();
@@ -117,7 +155,6 @@ export async function deleteCashClosing(id: number) {
         [id],
       );
     });
-
   } catch (error) {
     throw new AppError('Ocorreu um erro ao excluir o fechamento')
   }

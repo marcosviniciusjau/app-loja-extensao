@@ -2,7 +2,7 @@ import React from "react";
 import { useCallback, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
-import { Text } from "native-base";
+import { ScrollView, Text } from "native-base";
 
 import { Alert, SectionList } from "react-native";
 import { deleteCashClosing, fetchCashClosingsWeek } from "@dao/CashClosingDAO";
@@ -11,7 +11,7 @@ import { CashClosingCard } from "@components/CashClosingCard";
 import { Container } from "./styles";
 
 export function ListWeek() {
-  const [cashClosing, setCashClosing] = useState<CashClosing[]>([]);
+  const [cashClosings, setCashClosings] = useState<CashClosing[]>([]);
   async function handleRemoveCashClosing(id: number) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [
@@ -39,9 +39,9 @@ export function ListWeek() {
     try {
       const results = await fetchCashClosingsWeek();
       if (Array.isArray(results)) {
-        setCashClosing([...(results as CashClosing[])]);
+        setCashClosings([...(results as CashClosing[])]);
       } else {
-        setCashClosing([]);
+        setCashClosings([]);
       }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
@@ -55,20 +55,22 @@ export function ListWeek() {
   );
 
   return (
-    <Container>
-      <SectionList
-        sections={[{ data: cashClosing }]}
-        ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
-        renderItem={({ item }) => (
-          <CashClosingCard
-            isWeek
-            isMonth={false}
-            item={item}
-            onDelete={() => handleRemoveCashClosing(item.id)}
-            onUpdate={fetchAllCashClosings}
-          />
-        )}
-      />
-    </Container>
+    <ScrollView>
+      <Container>
+        <SectionList
+          sections={[{ data: cashClosings }]}
+          ListEmptyComponent={() => <Text>Não há registros ainda.</Text>}
+          renderItem={({ item }) => (
+            <CashClosingCard
+              isWeek
+              isMonth={false}
+              item={item}
+              onDelete={() => handleRemoveCashClosing(item.id)}
+              onUpdate={fetchAllCashClosings}
+            />
+          )}
+        />
+      </Container>
+    </ScrollView>
   );
 }

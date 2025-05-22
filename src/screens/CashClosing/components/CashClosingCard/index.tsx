@@ -9,42 +9,39 @@ import {
   Input,
   ScrollView,
   Select,
-  Text,
   View,
   VStack,
 } from "native-base";
 
-import zod from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Options } from "@screens/CashClosing/register/styles";
 import {
-  fetchCashClosingsMonth,
+  fetchCashClosingsSelectedMonth,
   fetchCashClosingsWeek,
   updateCashClosing,
 } from "@dao/CashClosingDAO";
 import dayjs from "dayjs";
+import {
+  cashClosingBody,
+  CashClosingFormData,
+} from "@screens/CashClosing/register/index";
 
 type Props = TouchableOpacityProps & {
   onDelete: () => void;
   isWeek: boolean;
+  selectedMonth?: number;
   isMonth: boolean;
   onUpdate: () => void;
   item: CashClosing;
 };
-
-const cashClosingBody = zod.object({
-  total: zod.coerce.number().positive("Informe um valor positivo"),
-  type: zod.string().optional(),
-});
-
-type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function CashClosingCard({
   item,
   isMonth,
   isWeek,
   onUpdate,
+  selectedMonth,
   onDelete,
   ...rest
 }: Props) {
@@ -53,18 +50,32 @@ export function CashClosingCard({
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     reset,
   } = useForm<CashClosingFormData>({
     defaultValues: { type: item.type || "" },
     resolver: zodResolver(cashClosingBody),
   });
 
+  function getColorByType(type: string): string {
+    const colorsMap = [
+      { type: "Venda", color: "#00875F" },
+      { type: "Gasto", color: "#FF3131" },
+      { type: "Compra", color: "#1E90FF" },
+      { type: "CASA", color: "#FF3131" },
+    ];
+
+    const match = colorsMap.find((item) =>
+      type.toLowerCase().includes(item.type.toLowerCase())
+    );
+    return match ? match.color : "#8e8c8c";
+  }
+
   const [otherText, setOtherText] = useState("");
   async function handleUpdate(data: CashClosingFormData) {
     try {
       const finalType =
-        (data.type === "outro" ? otherText : data.type) || item.type;
+        data.type === "outro" || data.type === "obs" ? otherText : data.type;
       const finalTotal =
         finalType !== item.type ? data.total : item.total + data.total;
       const payload = {
@@ -72,12 +83,11 @@ export function CashClosingCard({
         total: finalTotal,
         id: item.id,
       };
-      //@ts-ignore
       updateCashClosing(payload);
       reset({ total: 0 });
       reset({ type: "" });
       setOtherText("");
-      isMonth && fetchCashClosingsMonth();
+      isMonth && fetchCashClosingsSelectedMonth(selectedMonth!);
       isWeek && fetchCashClosingsWeek();
       setIsEditing(false);
       onUpdate();
@@ -90,9 +100,12 @@ export function CashClosingCard({
   }
 
   return (
-    <ScrollView>
+    <>
       {isEditing ? (
-        <ContainerUpdate {...rest}>
+        <ContainerUpdate
+          {...rest}
+          style={{ backgroundColor: getColorByType(item.type) }}
+        >
           <CashClosingText>
             {dayjs(item.created_at).format("DD/MM")}
           </CashClosingText>
@@ -149,32 +162,66 @@ export function CashClosingCard({
                       backgroundColor: "#FF3131",
                     }}
                   >
-                    <Select.Item label="Compra Pix" value="Compra Pix" />
                     <Select.Item
-                      label="Compra Dinheiro"
-                      value="Compra Dinheiro"
-                    />
-                    <Select.Item label="Venda Pix" value="Venda Pix" />
-                    <Select.Item label="Venda Cartão" value="Venda Cartão" />
-                    <Select.Item
-                      label="Venda Dinheiro"
-                      value="Venda Dinheiro"
+                      label="Compra Pix Loja"
+                      value="Compra Pix Loja"
                     />
                     <Select.Item
-                      label="Gasto Dinheiro"
-                      value="Gasto Dinheiro"
+                      label="Compra Dinheiro Loja"
+                      value="Compra Dinheiro Loja"
                     />
-                    <Select.Item label="Gasto Cartão" value="Gasto Cartão" />
-                    <Select.Item label="Gasto Pix" value="Gasto Pix" />
+                    <Select.Item
+                      label="Venda Pix Loja"
+                      value="Venda Pix Loja"
+                    />
+                    <Select.Item
+                      label="Venda Cartão Loja"
+                      value="Venda Cartão Loja"
+                    />
+                    <Select.Item
+                      label="Venda Dinheiro Loja"
+                      value="Venda Dinheiro Loja"
+                    />
+                    <Select.Item
+                      label="Gasto Dinheiro Loja"
+                      value="Gasto Dinheiro Loja"
+                    />
+                    <Select.Item
+                      label="Gasto Cartão Loja"
+                      value="Gasto Cartão Loja"
+                    />
+                    <Select.Item
+                      label="Gasto Pix Loja"
+                      value="Gasto Pix Loja"
+                    />
+                    <Select.Item
+                      label="Gasto Diário Loja"
+                      value="Gasto Diário Loja"
+                    />
+                    <Select.Item
+                      label="Gasto Cartão CASA"
+                      value="Gasto Cartão CASA"
+                    />
+                    <Select.Item
+                      label="Gasto Dinheiro CASA"
+                      value="Gasto Dinheiro CASA"
+                    />
+                    <Select.Item
+                      label="Gasto Pix CASA"
+                      value="Gasto Pix CASA"
+                    />
+
                     <Select.Item label="Outro" value="outro" />
+                    <Select.Item label="Observações (LOJA)" value="obs" />
                   </Options>
 
-                  {value === "outro" && (
+                  {(value === "outro" || value === "obs") && (
                     <Input
-                      marginTop={3}
-                      color="white"
-                      width={"205%"}
+                      mt={2}
+                      width="250%"
                       backgroundColor={"#000"}
+                      color={"#fff"}
+                      placeholder="Digite um tipo"
                       value={otherText}
                       onChangeText={setOtherText}
                     />
@@ -213,26 +260,33 @@ export function CashClosingCard({
           </View>
         </ContainerUpdate>
       ) : (
-        <Container {...rest}>
-          <CashClosingText>
-            {dayjs(item.created_at).format("DD/MM")}
-          </CashClosingText>
-          <CashClosingText>
-            {new Intl.NumberFormat("pt-BR", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            }).format(item.total)}
-          </CashClosingText>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <Container
+            {...rest}
+            style={{ backgroundColor: getColorByType(item.type) }}
+          >
+            <CashClosingText>
+              {dayjs(item.created_at).format("DD/MM")}
+            </CashClosingText>
+            <CashClosingText>
+              {item.total > 0
+                ? new Intl.NumberFormat("pt-BR", {
+                    style: "decimal",
+                    minimumFractionDigits: 2,
+                  }).format(item.total)
+                : ""}
+            </CashClosingText>
 
-          <CashClosingText>{item.type}</CashClosingText>
-          <ButtonIcon
-            icon="pencil"
-            color={"#fff"}
-            onPress={() => setIsEditing(true)}
-          />
-          <ButtonIcon icon="trash" color={"#fff"} onPress={onDelete} />
-        </Container>
+            <CashClosingText>{item.type}</CashClosingText>
+            <ButtonIcon
+              icon="pencil"
+              color={"#fff"}
+              onPress={() => setIsEditing(true)}
+            />
+            <ButtonIcon icon="trash" color={"#fff"} onPress={onDelete} />
+          </Container>
+        </ScrollView>
       )}
-    </ScrollView>
+    </>
   );
 }

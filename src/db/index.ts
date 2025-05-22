@@ -5,11 +5,11 @@ SQLite.enablePromise(true);
 export async function getDbConnection() {
   try {
     const db = await SQLite.openDatabase({
-      name: 'CashClosing.db',
+      name: 'CashClosings.db',
       location: 'default',
     });
     await db.executeSql(`
-      CREATE TABLE IF NOT EXISTS CashClosing (
+      CREATE TABLE IF NOT EXISTS cash_closings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         total REAL,
         type TEXT,       

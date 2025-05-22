@@ -50,7 +50,7 @@ export function Routes() {
         }}
       />
       <Screen
-        name="Total"
+        name="Relatório"
         component={Sum}
         options={{
           tabBarActiveTintColor: "#fff",
