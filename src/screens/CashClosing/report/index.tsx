@@ -19,7 +19,7 @@ import { pickExcelFile } from "@/src/utils/pickExcelFile";
 import { readExcel } from "@/src/utils/readExcel";
 import { PieChart } from "react-native-chart-kit";
 
-export function Sum() {
+export function Report() {
   const [sumRevenues, setSumRevenues] = useState<number>(0);
   const [otherExpenses, setOtherExpenses] = useState<CashClosing[]>([]);
   const [sumOtherExpenses, setSumOtherExpenses] = useState<number>(0);
@@ -237,14 +237,14 @@ export function Sum() {
           mb={5}
         >
           <ButtonIcon
-            icon="save"
+            icon="cloud-upload"
             color={mainColor}
             onPress={() => {
               exportExcel();
             }}
           />
           <ButtonIcon
-            icon="cloud-upload"
+            icon="download"
             color={mainColor}
             onPress={() => {
               convertExcelToSQL();

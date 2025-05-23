@@ -174,6 +174,7 @@ export function RegisterCashClosing() {
         (acc, item) => acc + item.total,
         0
       );
+
       setSumPurchases(purchasesSum);
 
       const revenuesSum = revenuesResults.reduce(
@@ -192,11 +193,13 @@ export function RegisterCashClosing() {
       );
 
       setSumBusinessExpenses(expensesBusinessSum);
+      
       const otherExpensesSum = otherExpenses.reduce(
         (acc, item) => acc + item.total,
         0
       );
       setSumOtherExpenses(otherExpensesSum);
+      
       const expensesHomeSum = expensesHomeResults.reduce(
         (acc, item) => acc + item.total,
         0

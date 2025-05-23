@@ -2,10 +2,11 @@ import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
 import { RegisterCashClosing } from "@screens/CashClosing/register";
 import { ListWeek } from "@screens/CashClosing/list-week";
 import { ListMonth } from "@screens/CashClosing/list-month";
-import { Sum } from "@screens/CashClosing/sum";
+import { Report } from "@screens/CashClosing/report";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function Routes() {
@@ -37,7 +38,7 @@ export function Routes() {
           ),
         }}
       />
-       <Screen
+      <Screen
         name="Mensal"
         component={ListMonth}
         options={{
@@ -51,7 +52,7 @@ export function Routes() {
       />
       <Screen
         name="Relatório"
-        component={Sum}
+        component={Report}
         options={{
           tabBarActiveTintColor: "#fff",
           tabBarInactiveTintColor: "#fff",

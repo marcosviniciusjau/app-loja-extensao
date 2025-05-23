@@ -1,6 +1,11 @@
 import { Alert, TouchableOpacityProps } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Container, CashClosingText, ContainerUpdate } from "./styles";
+import {
+  Container,
+  CashClosingText,
+  ContainerUpdate,
+  DateContainer,
+} from "./styles";
 import React, { useState } from "react";
 import { CashClosing } from "@dtos/CashClosing";
 import { ButtonIcon } from "@components/ButtonIcon";
@@ -8,6 +13,7 @@ import {
   Button,
   Heading,
   ScrollView,
+  Text,
   Select,
   View,
   Input,
@@ -16,7 +22,7 @@ import {
 
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DateContainer, InputDate, Options } from "@screens/CashClosing/register/styles";
+import { Options, InputDate } from "@screens/CashClosing/register/styles";
 import {
   fetchCashClosingsSelectedMonth,
   fetchCashClosingsWeek,
@@ -57,7 +63,7 @@ export function CashClosingCard({
     formState: { isSubmitting },
     reset,
   } = useForm<CashClosingFormData>({
-    defaultValues: { type: item.type || "" },
+    defaultValues: { type: item.type || "" , total: item.total },
     resolver: zodResolver(cashClosingBody),
   });
 
@@ -115,10 +121,7 @@ export function CashClosingCard({
           {...rest}
           style={{ backgroundColor: getColorByType(item.type) }}
         >
-          <CashClosingText>
-            {dayjs(item.created_at).format("DD/MM")}
-          </CashClosingText>
-          <View flex={1} flexDirection="row" style={{ gap: 3 }}>
+          <View flex={1} flexDirection="column" style={{ gap: 3 }}>
             <Heading color="white" mt={5} fontSize={"lg"}>
               Data
             </Heading>
@@ -146,9 +149,16 @@ export function CashClosingCard({
               }
             />
             <DateContainer>
-              <InputDate value={dayjs(selectedDate).format("DD/MM/YYYY")} />
+              <Input
+                width={"150%"}
+                backgroundColor={"#000"}
+                color={"#fff"}
+                value={dayjs(selectedDate).format("DD/MM/YYYY")}
+              />
+
               <ButtonIcon
-                color="white"
+                style={{ marginBottom: -30, marginTop: -30 }}
+                color="#fff"
                 icon="calendar"
                 onPress={() => setShowPicker(true)}
               />
@@ -160,14 +170,11 @@ export function CashClosingCard({
               render={({ field: { onChange, value } }) => (
                 <Input
                   width={"40%"}
-                  height={"32%"}
                   backgroundColor={"#000"}
                   color={"#fff"}
                   borderColor={errorColor}
-                  placeholder="0.0"
                   keyboardType="decimal-pad"
-                  //@ts-ignore
-                  value={value}
+                  value={value !== undefined && value !== null ? String(value) : ""}
                   onChangeText={onChange}
                 />
               )}
@@ -178,7 +185,7 @@ export function CashClosingCard({
               render={({ field: { onChange, value } }) => (
                 <VStack>
                   <Options
-                    width="250%"
+                    width="70%"
                     backgroundColor={"#000"}
                     selectedValue={value}
                     onValueChange={(val: string) => onChange(val)}
@@ -275,15 +282,15 @@ export function CashClosingCard({
             />
             <View
               flex={1}
-              flexDirection="row"
+              flexDirection="column"
               style={{ gap: 3 }}
-              marginTop={110}
-              marginLeft={-20}
+              marginTop={10}
             >
               <Button
                 onPress={handleSubmit(handleUpdate)}
                 disabled={isSubmitting}
-                backgroundColor="#00875F"
+                backgroundColor="#00B37E"
+                mb={15}
               >
                 <Heading color="white" size={"sm"}>
                   Atualizar

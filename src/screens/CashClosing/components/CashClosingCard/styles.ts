@@ -1,3 +1,4 @@
+import { View } from "react-native";
 import { TouchableOpacity, Text } from "react-native"
 import styled from "styled-components/native";
 
@@ -12,6 +13,19 @@ export const Container = styled(TouchableOpacity)({
   alignItems: 'center',
   justifyContent: 'space-between',
 });
+
+export const DateContainer = styled(View)({
+  backgroundColor: '#00000000',
+  borderColor: '#00000000',
+  flexDirection: "row",
+  alignItems: "center",
+  borderWidth: 1,
+  paddingTop: 30,
+  paddingBottom: 30,
+  width: "45%",
+  height: "6%",
+  borderRadius: 5,
+})
 
 export const ContainerUpdate = styled(TouchableOpacity)({
   display: 'flex',
