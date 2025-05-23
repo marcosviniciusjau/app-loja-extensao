@@ -12,6 +12,7 @@ import { Container } from "./styles";
 
 export function ListWeek() {
   const [cashClosings, setCashClosings] = useState<CashClosing[]>([]);
+
   async function handleRemoveCashClosing(id: number) {
     try {
       Alert.alert("Confirmação", "Deseja realmente excluir?", [

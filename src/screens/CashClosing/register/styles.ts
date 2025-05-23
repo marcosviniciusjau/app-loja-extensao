@@ -8,11 +8,29 @@ export const Container = styled(View)({
   display: 'grid',
 })
 
+export const DateContainer = styled(View)({
+  flexDirection: "row",
+  alignItems: "center",
+  borderColor: "#FF3131",
+  borderWidth: 1,
+  padding: 10,
+  gap: 20,
+  margin: 10,
+  width: "45%",
+  height: "6%",
+  borderRadius: 5,
+})
+
 export const Input = styled(TextInput)({
   borderColor: '#FF3131',
   borderWidth: 1,
   padding: '10px',
   margin: '10px',
+  color: 'white',
+})
+
+export const InputDate = styled(TextInput)({
+  borderWidth: 1,
   color: 'white',
 })
 

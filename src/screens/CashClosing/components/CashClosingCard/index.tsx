@@ -1,4 +1,5 @@
 import { Alert, TouchableOpacityProps } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Container, CashClosingText, ContainerUpdate } from "./styles";
 import React, { useState } from "react";
 import { CashClosing } from "@dtos/CashClosing";
@@ -6,16 +7,16 @@ import { ButtonIcon } from "@components/ButtonIcon";
 import {
   Button,
   Heading,
-  Input,
   ScrollView,
   Select,
   View,
+  Input,
   VStack,
 } from "native-base";
 
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Options } from "@screens/CashClosing/register/styles";
+import { DateContainer, InputDate, Options } from "@screens/CashClosing/register/styles";
 import {
   fetchCashClosingsSelectedMonth,
   fetchCashClosingsWeek,
@@ -46,6 +47,9 @@ export function CashClosingCard({
   ...rest
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const [showPicker, setShowPicker] = useState(false);
   const errorColor = "#FF3131";
   const {
     control,
@@ -72,13 +76,18 @@ export function CashClosingCard({
   }
 
   const [otherText, setOtherText] = useState("");
+
   async function handleUpdate(data: CashClosingFormData) {
     try {
+      const newFormattedDate = data.created_at
+        ? dayjs(data.created_at).format("YYYY-MM-DD")
+        : dayjs().format("YYYY-MM-DD");
       const finalType =
         data.type === "outro" || data.type === "obs" ? otherText : data.type;
       const finalTotal =
         finalType !== item.type ? data.total : item.total + data.total;
       const payload = {
+        created_at: newFormattedDate,
         type: finalType,
         total: finalTotal,
         id: item.id,
@@ -110,6 +119,41 @@ export function CashClosingCard({
             {dayjs(item.created_at).format("DD/MM")}
           </CashClosingText>
           <View flex={1} flexDirection="row" style={{ gap: 3 }}>
+            <Heading color="white" mt={5} fontSize={"lg"}>
+              Data
+            </Heading>
+
+            <Controller
+              control={control}
+              name="created_at"
+              render={({ field: { onChange, value } }) =>
+                showPicker ? (
+                  <DateTimePicker
+                    value={value ?? new Date()}
+                    display="default"
+                    mode="date"
+                    onChange={(_, selectedDate) => {
+                      setShowPicker(false);
+                      if (selectedDate) {
+                        setSelectedDate(selectedDate);
+                        onChange(selectedDate);
+                      }
+                    }}
+                  />
+                ) : (
+                  <></>
+                )
+              }
+            />
+            <DateContainer>
+              <InputDate value={dayjs(selectedDate).format("DD/MM/YYYY")} />
+              <ButtonIcon
+                color="white"
+                icon="calendar"
+                onPress={() => setShowPicker(true)}
+              />
+            </DateContainer>
+
             <Controller
               control={control}
               name="total"

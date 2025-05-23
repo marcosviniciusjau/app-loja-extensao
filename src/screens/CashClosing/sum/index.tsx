@@ -10,22 +10,43 @@ import { ButtonIcon } from "../components/ButtonIcon";
 
 import { Container, Main, Sums, Title } from "./styles";
 import { Heading, ScrollView, Text, View } from "native-base";
-import { Alert } from "react-native";
+import { Alert, Dimensions } from "react-native";
 import { CashClosing } from "@dtos/CashClosing";
 import dayjs from "dayjs";
 import { exportToExcel } from "@/src/utils/exportToExcel";
 import { insertIntoSQLite } from "@/src/utils/convertExcelToSQL";
 import { pickExcelFile } from "@/src/utils/pickExcelFile";
 import { readExcel } from "@/src/utils/readExcel";
+import { PieChart } from "react-native-chart-kit";
 
 export function Sum() {
   const [sumRevenues, setSumRevenues] = useState<number>(0);
-  const [sumExpenses, setSumExpenses] = useState<number>(0);
+  const [otherExpenses, setOtherExpenses] = useState<CashClosing[]>([]);
+  const [sumOtherExpenses, setSumOtherExpenses] = useState<number>(0);
   const [sumHomeExpenses, setSumHomeExpenses] = useState<number>(0);
   const [sumPurchases, setSumPurchases] = useState<number>(0);
+  const [sumBusinessExpenses, setSumBusinessExpenses] = useState<number>(0);
+
   const [obsTypes, setObsTypes] = useState<string>();
+
   const thisMonth = dayjs().month();
   const [selectedMonth, setSelectedMonth] = useState(thisMonth);
+
+  function generateColor(index: number) {
+    const colors = [
+      "#FF3131",
+      "#36A2EB",
+      "#8e8c8c",
+      "#4BC0C0",
+      "#9966FF",
+      "#FF9F40",
+      "#FF4444",
+      "#00C851",
+      "#33b5e5",
+      "#2BBBAD",
+    ];
+    return colors[index % colors.length];
+  }
 
   async function convertExcelToSQL() {
     try {
@@ -96,6 +117,7 @@ export function Sum() {
       Alert.alert("Erro", "Não foi possível listar as despesa");
     }
   }
+
   const mainColor = "#FF3131";
 
   async function fetchSumCashClosings(results: CashClosing[]) {
@@ -111,32 +133,52 @@ export function Sum() {
         item.type.includes("Compra")
       );
       const purchasesTypes = purchasesResults.map((item) => item.type);
+
       const expensesResults = results.filter((item) =>
         item.type.includes("Gasto")
       );
+      const expensesBusinessResults = expensesResults.filter((item) =>
+        item.type.includes("Loja")
+      );
+
+      const expensesBusinessSum = expensesBusinessResults.reduce(
+        (acc, item) => acc + item.total,
+        0
+      );
+
+      setSumBusinessExpenses(expensesBusinessSum);
+
       const expensesTypes = expensesResults.map((item) => item.type);
 
-      const expensesHomeResults = results.filter(
+      const expensesHomeResults = expensesResults.filter((item) =>
+        item.type.includes("CASA")
+      );
+
+      const otherExpensesResults = results.filter(
         (item) =>
           !revenuesTypes.includes(item.type) &&
           !purchasesTypes.includes(item.type) &&
           !expensesTypes.includes(item.type)
       );
+      setOtherExpenses(otherExpensesResults);
       const purchasesSum = purchasesResults.reduce(
         (acc, item) => acc + item.total,
         0
       );
       setSumPurchases(purchasesSum);
+
       const revenuesSum = revenuesResults.reduce(
         (acc, item) => acc + item.total,
         0
       );
       setSumRevenues(revenuesSum);
-      const expensesSum = expensesResults.reduce(
+
+      const otherExpensesSum = otherExpensesResults.reduce(
         (acc, item) => acc + item.total,
         0
       );
-      setSumExpenses(expensesSum);
+      setSumOtherExpenses(otherExpensesSum);
+
       const expensesHomeSum = expensesHomeResults.reduce(
         (acc, item) => acc + item.total,
         0
@@ -216,7 +258,7 @@ export function Sum() {
         </Container>
         <Container>
           <ButtonIcon icon="money" color="#00875F" />
-          <Title color="#00875F">Receitas</Title>
+          <Title color="#00875F">Receitas da Loja</Title>
           <Sums>
             {sumRevenues.toLocaleString("pt-BR", {
               style: "currency",
@@ -228,7 +270,7 @@ export function Sum() {
           <ButtonIcon icon="credit-card" color={mainColor} />
           <Title color={mainColor}>Gastos da Loja</Title>
           <Sums>
-            {sumExpenses.toLocaleString("pt-BR", {
+            {sumBusinessExpenses.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             }) || 0}
@@ -244,9 +286,42 @@ export function Sum() {
             }) || 0}
           </Sums>
         </Container>
+        <PieChart
+          data={otherExpenses.map((item, index) => ({
+            name: item.type,
+            population: item.total,
+            color: generateColor(index),
+            legendFontColor: "#fff",
+            legendFontSize: 13,
+          }))}
+          width={Dimensions.get("window").width - 16}
+          height={220}
+          chartConfig={{
+            backgroundColor: "#fff",
+            backgroundGradientFrom: "#fff",
+            backgroundGradientTo: "#fff",
+            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          }}
+          accessor={"population"}
+          backgroundColor={"transparent"}
+          paddingLeft={"-8"}
+          center={[10, 5]}
+          absolute
+        />
+        <Container>
+          <ButtonIcon icon="home" color={mainColor} />
+          <Title color={mainColor}>Outras Despesas</Title>
+          <Sums>
+            {sumOtherExpenses.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }) || 0}
+          </Sums>
+        </Container>
         <Container>
           <ButtonIcon icon="shopping-bag" color="#1E90FF" />
-          <Title color="#1E90FF">Compras</Title>
+          <Title color="#1E90FF">Compras da Loja</Title>
           <Sums>
             {sumPurchases.toLocaleString("pt-BR", {
               style: "currency",

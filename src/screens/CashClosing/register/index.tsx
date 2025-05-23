@@ -1,9 +1,10 @@
 import React from "react";
-import zod from "zod";
+import zod, { set } from "zod";
 import { useCallback, useState } from "react";
 
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
-import { Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Button } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,6 +15,7 @@ import {
   Select,
   VStack,
   Center,
+  View,
 } from "native-base";
 import {
   addCashClosing,
@@ -22,9 +24,17 @@ import {
 } from "@dao/CashClosingDAO";
 import { CashClosing } from "@dtos/CashClosing";
 
-import { Container, Input, Options, Register } from "./styles";
+import {
+  Container,
+  DateContainer,
+  Input,
+  InputDate,
+  Options,
+  Register,
+} from "./styles";
 import { CashClosingCard } from "@components/CashClosingCard";
 import dayjs from "dayjs";
+import { ButtonIcon } from "@components/ButtonIcon";
 
 export const cashClosingBody = zod.object({
   total: zod.coerce.number().min(0, "Informe um valor positivo"),
@@ -32,22 +42,35 @@ export const cashClosingBody = zod.object({
     .string()
     .min(1, "Informe um tipo")
     .refine((val) => val === "outro" || val.length > 1, {
-      message: "Informe um tipo válino",
+      message: "Informe um tipo válido",
     }),
+  created_at: zod
+    .date()
+    .default(() => new Date())
+    .optional(),
 });
 
 export type CashClosingFormData = zod.infer<typeof cashClosingBody>;
 
 export function RegisterCashClosing() {
   const [cashClosings, setCashClosings] = useState<CashClosing[]>([]);
+
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
   const [otherText, setOtherText] = useState("");
+
   const [sumRevenues, setSumRevenues] = useState<number>(0);
-  const [sumExpenses, setSumExpenses] = useState<number>(0);
   const [sumHomeExpenses, setSumHomeExpenses] = useState<number>(0);
   const [sumPurchases, setSumPurchases] = useState<number>(0);
+  const [sumBusinessExpenses, setSumBusinessExpenses] = useState<number>(0);
+  const [sumOtherExpenses, setSumOtherExpenses] = useState<number>(0);
+
   const [obsTypes, setObsTypes] = useState<string>();
+
   const errorColor = "#FF3131";
-  const [sum, setSum] = useState(0);
+  
+  const [showPicker, setShowPicker] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -59,9 +82,13 @@ export function RegisterCashClosing() {
 
   async function registerCashClosing(data: CashClosingFormData) {
     try {
+      const newFormattedDate = data.created_at
+        ? dayjs(data.created_at).format("YYYY-MM-DD")
+        : dayjs().format("YYYY-MM-DD");
       const tipo =
         data.type === "outro" || data.type === "obs" ? otherText : data.type;
-      addCashClosing({ ...data, type: tipo });
+      //@ts-ignore
+      addCashClosing({ ...data, created_at: newFormattedDate, type: tipo });
       fetchAllCashClosings();
       reset({ total: 0 });
       reset({ type: "" });
@@ -94,6 +121,7 @@ export function RegisterCashClosing() {
       );
     }
   }
+
   async function fetchAllCashClosings() {
     try {
       const results = await fetchCashClosingsToday();
@@ -101,10 +129,6 @@ export function RegisterCashClosing() {
         setCashClosings([...(results as CashClosing[])]);
 
         fetchSumCashClosings(results);
-        const total = results.reduce((acc, item) => {
-          return acc + Number(item.total);
-        }, 0);
-        setSum(total);
       } else {
         setCashClosings([]);
       }
@@ -112,19 +136,23 @@ export function RegisterCashClosing() {
       Alert.alert("Erro", "Não foi possível listar as despesas");
     }
   }
+
   async function fetchSumCashClosings(results: CashClosing[]) {
     try {
       const revenuesResults = results.filter((item) =>
         item.type.includes("Venda")
       );
       const revenuesTypes = revenuesResults.map((item) => item.type);
+
       const obs = results.filter((item) => item.total === 0);
       const obsTypes = obs.map((item) => item.type);
       setObsTypes(obsTypes.join(", "));
+
       const purchasesResults = results.filter((item) =>
         item.type.includes("Compra")
       );
       const purchasesTypes = purchasesResults.map((item) => item.type);
+
       const expensesResults = results.filter((item) =>
         item.type.includes("Gasto")
       );
@@ -154,27 +182,31 @@ export function RegisterCashClosing() {
       );
       setSumRevenues(revenuesSum);
 
-      const expensesSum = expensesResults.reduce(
+      const expensesBusinessResults = expensesResults.filter((item) =>
+        item.type.includes("Loja")
+      );
+
+      const expensesBusinessSum = expensesBusinessResults.reduce(
         (acc, item) => acc + item.total,
         0
       );
-      setSumExpenses(expensesSum);
 
+      setSumBusinessExpenses(expensesBusinessSum);
       const otherExpensesSum = otherExpenses.reduce(
         (acc, item) => acc + item.total,
         0
       );
-
+      setSumOtherExpenses(otherExpensesSum);
       const expensesHomeSum = expensesHomeResults.reduce(
         (acc, item) => acc + item.total,
         0
       );
-      const AllOtherExpenses = expensesHomeSum + otherExpensesSum;
-      setSumHomeExpenses(AllOtherExpenses);
+      setSumHomeExpenses(expensesHomeSum);
     } catch (error) {
       Alert.alert("Erro", "Não foi possível listar as despesas");
     }
   }
+
   useFocusEffect(
     useCallback(() => {
       fetchAllCashClosings();
@@ -188,6 +220,41 @@ export function RegisterCashClosing() {
         style={{ flex: 1 }}
       >
         <Container>
+          <Heading color="white" mt={5} fontSize={"lg"}>
+            Data
+          </Heading>
+
+          <Controller
+            control={control}
+            name="created_at"
+            render={({ field: { onChange, value } }) =>
+              showPicker ? (
+                <DateTimePicker
+                  value={value ?? new Date()}
+                  display="default"
+                  mode="date"
+                  onChange={(_, selectedDate) => {
+                    setShowPicker(false);
+                    if (selectedDate) {
+                      setSelectedDate(selectedDate);
+                      onChange(selectedDate);
+                    }
+                  }}
+                />
+              ) : (
+                <></>
+              )
+            }
+          />
+          <DateContainer>
+            <InputDate value={dayjs(selectedDate).format("DD/MM/YYYY")} />
+            <ButtonIcon
+              color="white"
+              icon="calendar"
+              onPress={() => setShowPicker(true)}
+            />
+          </DateContainer>
+
           <Heading color="white" mt={5} fontSize={"lg"}>
             Total
           </Heading>
@@ -331,7 +398,7 @@ export function RegisterCashClosing() {
           </Heading>
           <Heading color="white" mb={5} mt={5}>
             Total de Gastos da Loja do Dia:{" "}
-            {sumExpenses.toLocaleString("pt-BR", {
+            {sumBusinessExpenses.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             })}
@@ -339,6 +406,13 @@ export function RegisterCashClosing() {
           <Heading color="white" mb={5} mt={5}>
             Total de Gastos de Casa do Dia:{" "}
             {sumHomeExpenses.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </Heading>
+          <Heading color="white" mb={5} mt={5}>
+            Total de outras Despesas do Dia:{" "}
+            {sumOtherExpenses.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             })}

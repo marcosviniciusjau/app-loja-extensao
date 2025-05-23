@@ -7,16 +7,16 @@ const sqlDelete =
   'DELETE FROM cash_closings WHERE id=?';
 
 const sqlInsert =
-  'INSERT INTO cash_closings (total, type)' +
-  ' VALUES (?,?)';
+  'INSERT INTO cash_closings (created_at, total, type)' +
+  ' VALUES (?,?,?)';
 
-const sqlUpdate = 'UPDATE cash_closings SET total = ?, type = ? WHERE id = ?';
+const sqlUpdate = 'UPDATE cash_closings SET created_at = ?, total = ?, type = ? WHERE id = ?';
 
-const startDay = dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss");
-const endDay = dayjs().endOf("day").format("YYYY-MM-DD HH:mm:ss");
+const today = dayjs().format("YYYY-MM-DD");
+const startWeek = dayjs().startOf("week").format("YYYY-MM-DD");
+const endWeek = dayjs().endOf("week").format("YYYY-MM-DD");
 
-const startWeek = dayjs().startOf("week").format("YYYY-MM-DD HH:mm:ss");
-const endWeek = dayjs().endOf("week").format("YYYY-MM-DD HH:mm:ss");
+const sqlSelectToday = "SELECT * FROM cash_closings WHERE created_at= ?";
 
 const sqlSelect = "SELECT * FROM cash_closings WHERE created_at BETWEEN ? AND ? ORDER BY created_at ASC";
 
@@ -25,14 +25,16 @@ const sqlSelectAll = "SELECT * FROM cash_closings ORDER BY created_at ASC";
 type CashClosingSelected = {
   id: number;
   total: number;
+  created_at: string;
   type: string;
 }
+
 export async function addCashClosing(cashClosing: CashClosingFormData) {
   try {
     const db = await getDbConnection();
     await db.executeSql(
       sqlInsert,
-      [cashClosing.total, cashClosing.type],
+      [cashClosing.created_at, cashClosing.total, cashClosing.type],
     );
   } catch (error) {
     throw new AppError("Erro ao salvar os dados.");
@@ -45,7 +47,7 @@ export async function updateCashClosing(cashClosing: CashClosingSelected) {
 
     await db.executeSql(
       sqlUpdate,
-      [cashClosing.total, cashClosing.type, cashClosing.id],
+      [cashClosing.created_at, cashClosing.total, cashClosing.type, cashClosing.id],
     );
   } catch (error) {
     throw new AppError("Erro ao atualizar os dados.");
@@ -58,8 +60,8 @@ export async function fetchCashClosingsToday() {
   return new Promise((resolve, reject) => {
     db.transaction((txn) => {
       txn.executeSql(
-        sqlSelect,
-        [startDay, endDay],
+        sqlSelectToday,
+        [today],
         (_tx, res) => {
           const cashClosings = [];
           for (let i = 0; i < res.rows.length; i++) {

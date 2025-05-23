@@ -13,7 +13,7 @@ export async function getDbConnection() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         total REAL,
         type TEXT,       
-       created_at TEXT DEFAULT (datetime('now', 'localtime'))
+       created_at TEXT DEFAULT (date('now', 'localtime'))
  )
     `);
 
